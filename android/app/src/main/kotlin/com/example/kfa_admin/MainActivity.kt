@@ -1,4 +1,4 @@
-package com.example.kfa_admin
+package com.oneclickonedollar.kfa_admin
 
 import io.flutter.embedding.android.FlutterActivity
 
