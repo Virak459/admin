@@ -166,7 +166,7 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
     }
   }
 
-  var formatter = NumberFormat("##,###,###,##0.00", "en_US");
+  var formatter = NumberFormat("##,###,###,###.00", "en_US");
 
   late AnimationController controller;
   late Animation<double> animation;

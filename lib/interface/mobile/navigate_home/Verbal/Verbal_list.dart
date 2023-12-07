@@ -20,7 +20,6 @@ import '../../../../components/get_image_by_firsbase.dart';
 import '../../../../contants.dart';
 import '../../../../model/land_building.dart';
 import '../../../../model/models/autoVerbal.dart';
-import '../AutoVerbal/Deteil.dart';
 import '../AutoVerbal/Edit.dart';
 
 class Verbals_list extends StatefulWidget {
