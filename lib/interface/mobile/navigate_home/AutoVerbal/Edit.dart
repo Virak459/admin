@@ -713,35 +713,39 @@ class _EditState extends State<Edit> with SingleTickerProviderStateMixin {
   }
 
   Future<void> SlideUp(BuildContext context) async {
-    final result = await Navigator.push(
-      context,
+    final result = await Navigator.of(context).push(
       MaterialPageRoute(
-          builder: (context) => HomePage(
-                c_id: widget.verbal_id.toString(),
-                district: (value) {
-                  setState(() {
-                    district = value;
-                    Load_khan(district);
-                  });
-                },
-                commune: (value) {
-                  setState(() {
-                    commune = value;
-                    Load_sangkat(value);
-                  });
-                },
-                lat: (value) {
-                  setState(() {
-                    requestModelAuto.lat = double.parse(value);
-                  });
-                },
-                log: (value) {
-                  setState(() {
-                    requestModelAuto.lng = double.parse(value);
-                  });
-                },
-                province: (value) {},
-              )),
+        builder: (context) => map_cross_verbal(
+          get_commune: (value) {
+            setState(() {
+              commune = value;
+              Load_sangkat(value);
+            });
+          },
+          get_district: (value) {
+            setState(() {
+              district = value;
+              Load_khan(district);
+            });
+          },
+          get_lat: (value) {
+            setState(() {
+              requestModelAuto.lat = double.parse(value.toString());
+            });
+          },
+          get_log: (value) {
+            setState(() {
+              requestModelAuto.lng = double.parse(value.toString());
+            });
+          },
+          get_province: (value) {},
+          asking_price: (value) {
+            setState(() {
+              asking_price = double.parse(value.toString());
+            });
+          },
+        ),
+      ),
     );
     if (!mounted) return;
     asking_price = result[0]['adding_price'];

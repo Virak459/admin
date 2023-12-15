@@ -309,7 +309,7 @@ class AutoVerbalReponseModel {
 }
 
 class AutoVerbalRequestModel {
-  late int verbal_id;
+  late String verbal_id;
   late String verbal_khan;
   late String property_type_id;
   late String bank_id;
@@ -381,7 +381,7 @@ class AutoVerbalRequestModel {
       "verbal_con": verbal_con.trim(),
       "verbal_property_code": code.trim(),
       "verbal_user": user.trim(),
-      "verbal_option": option,
+      "verbal_option": option.trim(),
       "VerbalType": verbal,
     };
     return map;
@@ -748,4 +748,3 @@ class AutoVerbal_list {
     return data;
   }
 }
-

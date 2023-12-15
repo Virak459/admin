@@ -6,10 +6,11 @@ class CustomSearchDelegate extends SearchDelegate {
   bool? b;
   final List itemList;
   String? type_id;
-  // final OnChangeCallback list;
+  final OnChangeCallback list;
   final OnChangeCallback index_back;
 
-  CustomSearchDelegate(this.itemList, this.index_back, this.b, this.type_id);
+  CustomSearchDelegate(
+      this.itemList, this.index_back, this.b, this.type_id, this.list);
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -69,8 +70,11 @@ class CustomSearchDelegate extends SearchDelegate {
           onTap: () {
             query = suggestionList[index]['$type_id'].toString();
             index_back(index);
+            list(suggestionList);
+            print(suggestionList[index]['email'].toString());
             Navigator.pop(context);
-            print('Back');
+
+            //77
           },
         );
       },

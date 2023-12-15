@@ -27,6 +27,7 @@ class _Uer_VpointState extends State<User_Vpoint> {
     super.initState();
   }
 
+  List list_back = [];
   int index_back = 0;
   bool callback = false;
   @override
@@ -59,20 +60,23 @@ class _Uer_VpointState extends State<User_Vpoint> {
                     onTap: () async {
                       final selected = await showSearch(
                         context: context,
-                        delegate: CustomSearchDelegate(list,
-                            //  (value) {
-                            //   setState(() {
-                            //     // list_back = value;
-                            //     print(value.toString());
-                            //   });
-                            // },
-                            (value) {
-                          setState(() {
-                            callback = true;
-                            index_back = int.parse(value.toString());
-                            print(index_back.toString());
-                          });
-                        }, false, 'id_user_control'),
+                        delegate: CustomSearchDelegate(
+                          list,
+                          (value) {
+                            setState(() {
+                              callback = true;
+                              index_back = int.parse(value.toString());
+                              print(index_back.toString());
+                            });
+                          },
+                          false,
+                          'id_user_control',
+                          (value) {
+                            setState(() {
+                              list_back = value;
+                            });
+                          },
+                        ),
                       );
                       if (selected != null) {
                         // Handle the selected item here.
@@ -125,7 +129,7 @@ class _Uer_VpointState extends State<User_Vpoint> {
             )
           : callback == false
               ? body(list, 0)
-              : body(list, index_back),
+              : body(list_back, index_back),
       // body: _await_value(),
     );
   }
@@ -204,6 +208,9 @@ class _Uer_VpointState extends State<User_Vpoint> {
                           _v_point = TextEditingController(
                               text:
                                   '${(list[index]['count_autoverbal'].toString() == "null") ? "0" : list[index]['count_autoverbal']}');
+                          // _v_point = TextEditingController(
+                          //     text:
+                          //         '${(list[index]['count_autoverbal'].toString() == "null") ? "0" : list[index]['count_autoverbal']}');
                           // Edit_V_Point('${list[index]['id_user_control']}',
                           //     '${list[index]['count_autoverbal']}');
                         });
@@ -245,7 +252,8 @@ class _Uer_VpointState extends State<User_Vpoint> {
     var count_autoverbal;
     // var id = '38K622F38A';
     setState(() {
-      count_autoverbal = _v_point!.text;
+      // count_autoverbal = _v_point!.text;
+      count_autoverbal = v_point;
       print(count_autoverbal.toString());
     });
     var data = '''''';
@@ -301,7 +309,21 @@ class _Uer_VpointState extends State<User_Vpoint> {
               InkWell(
                 onTap: () {
                   setState(() {
-                    Edit_V_Point(id);
+                    if (date == null) {
+                      AwesomeDialog(
+                          context: context,
+                          animType: AnimType.leftSlide,
+                          headerAnimationLoop: false,
+                          dialogType: DialogType.question,
+                          showCloseIcon: false,
+                          title: 'Please Check Date',
+                          autoHide: Duration(seconds: 2),
+                          onDismissCallback: (type) {
+                            setState(() {});
+                          }).show();
+                    } else {
+                      Edit_V_Point(id);
+                    }
                   });
                 },
                 child: Container(
@@ -384,7 +406,7 @@ class _Uer_VpointState extends State<User_Vpoint> {
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
                   child: TextFormField(
-                    controller: _v_point,
+                    // controller: _v_point,
                     style: TextStyle(
                       fontSize: MediaQuery.of(context).size.height * 0.015,
                       fontWeight: FontWeight.bold,

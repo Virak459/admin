@@ -81,9 +81,6 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
     });
   }
 
-  String? _currentAddress;
-  Position? _currentPosition;
-
   Future<bool> _handleLocationPermission() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -117,12 +114,31 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
   }
 
   Future<void> _getCurrentPosition() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // The user denied the request for location permission.
+        // You can show a dialog or message to inform the user and guide them to enable location services.
+        print('Location permission denied by the user.');
+        return;
+      }
+    }
+    if (permission == LocationPermission.deniedForever) {
+      // The user denied the request for location permission permanently.
+      // You can open the device settings to guide the user to enable location services.
+      print('Location permission permanently denied by the user.');
+      return;
+    }
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
+    // Position position = await Geolocator.getCurrentPosition(
+    //     desiredAccuracy: LocationAccuracy.high);
 
     setState(() {
       lat = position.latitude;
       log = position.longitude;
+
       requestModelAuto.lat = lat.toString();
       requestModelAuto.lng = log.toString();
     });
@@ -158,6 +174,7 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
                 commune = (jsonResponse['results'][j]['address_components'][i]
                     ['short_name']);
                 Load_sangkat(commune.toString());
+                print(commune.toString());
               });
             }
           }
@@ -205,7 +222,8 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
       lat: "",
       lng: "",
       address: '',
-      approve_id: "", agent: "",
+      approve_id: "",
+      agent: "",
       bank_branch_id: "",
       bank_contact: "",
       bank_id: "",
@@ -219,11 +237,10 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
       owner: "",
       user: "10",
       verbal_com: '',
-      verbal_con: "",
+      verbal_con: "30",
       verbal: [],
-      verbal_id: 0, verbal_khan: '',
-      // autoVerbal: [requestModelVerbal],
-      // data: requestModelVerbal,
+      verbal_id: '0',
+      verbal_khan: '',
     );
   }
 
@@ -231,17 +248,24 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: kPrimaryColor,
+        backgroundColor: Color.fromARGB(235, 7, 9, 145),
         elevation: 0,
-        // centerTitle: true,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(Icons.arrow_back_ios),
+        ),
         actions: <Widget>[
           InkWell(
-            onTap: () {
-              uploadt_image(_file!);
-              uploadt_image_map();
+            onTap: () async {
+              List<Map<String, dynamic>> jsonList =
+                  lb.map((item) => item.toJson()).toList();
+              print('$jsonList');
               requestModelAuto.user = widget.id;
-              requestModelAuto.verbal_id = code;
-              requestModelAuto.verbal_khan = district.toString();
+              requestModelAuto.verbal_id = code.toString();
+              requestModelAuto.verbal_khan = '${commune}.${district}';
+              requestModelAuto.verbal = jsonList;
               APIservice apIservice = APIservice();
               apIservice.saveAutoVerbal(requestModelAuto).then(
                 (value) async {
@@ -259,17 +283,31 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
                     ).show();
                   } else {
                     if (value.message == "Save Successfully") {
+                      print('GO');
+                      if (_file != null) {
+                        uploadt_image(_file!);
+                        print('file != null');
+                      }
+                      uploadt_image_map();
+                      print('file == null');
                       AwesomeDialog(
-                          context: context,
-                          animType: AnimType.leftSlide,
-                          headerAnimationLoop: false,
-                          dialogType: DialogType.success,
-                          showCloseIcon: false,
-                          title: value.message,
-                          autoHide: Duration(seconds: 3),
-                          onDismissCallback: (type) {
-                            Navigator.pop(context);
-                          }).show();
+                        context: context,
+                        dialogType: DialogType.success,
+                        animType: AnimType.rightSlide,
+                        headerAnimationLoop: false,
+                        title: 'Successfully',
+                        desc: value.message,
+                        btnOkOnPress: () {
+                          Navigator.pop(context);
+                        },
+                        btnOkIcon: Icons.done,
+                        btnOkColor: Colors.green,
+                      ).show();
+                      // const snackBar = SnackBar(
+                      //   content: Text('processing payment...'),
+                      //   duration: Duration(seconds: 7),
+                      // );
+                      // ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     } else {
                       AwesomeDialog(
                         context: context,
@@ -282,7 +320,6 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
                         btnOkIcon: Icons.cancel,
                         btnOkColor: Colors.red,
                       ).show();
-                      print(value.message);
                     }
                   }
                 },
@@ -310,9 +347,15 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
                   ),
                   Container(
                     width: 10,
-                    height: 20,
+                    height: 25,
+                    decoration: BoxDecoration(
+                      color: Colors.red[700],
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(5),
+                        bottomLeft: Radius.circular(5),
+                      ),
+                    ),
                     alignment: Alignment.topRight,
-                    color: Colors.red[700],
                   )
                 ],
               ),
@@ -323,17 +366,14 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontSize: 22.0,
-            shadows: [
-              Shadow(blurRadius: 2, color: Color.fromRGBO(255, 235, 238, 1))
-            ],
             fontWeight: FontWeight.bold,
           ),
           child: AnimatedTextKit(
             animatedTexts: [
-              WavyAnimatedText('Auto Verbal',
+              WavyAnimatedText('Auto Verbalss',
                   textAlign: TextAlign.center,
-                  textStyle:
-                      TextStyle(color: Color.fromARGB(255, 255, 255, 255))),
+                  textStyle: TextStyle(
+                      color: Color.fromARGB(255, 255, 255, 255), fontSize: 20)),
             ],
             pause: const Duration(milliseconds: 900),
             isRepeatingAnimation: true,
@@ -343,8 +383,9 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
         ),
         toolbarHeight: 80,
       ),
-      backgroundColor: kPrimaryColor,
+      backgroundColor: Color.fromARGB(235, 7, 9, 145),
       body: Container(
+        height: double.infinity,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.only(
@@ -353,40 +394,7 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
           ),
         ),
         child: SingleChildScrollView(
-          child: Responsive(
-            mobile: addVerbal(context),
-            tablet: Row(
-              children: [
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        child: addVerbal(context),
-                      ),
-                    ],
-                  ),
-                )
-              ],
-            ),
-            desktop: Row(
-              children: [
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        child: addVerbal(context),
-                      ),
-                    ],
-                  ),
-                )
-              ],
-            ),
-            phone: addVerbal(context),
-          ),
+          child: addVerbal(context),
         ),
       ),
     );
@@ -395,6 +403,7 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
   Widget addVerbal(BuildContext context) {
     return Column(
       children: [
+        SizedBox(height: 10),
         Code(
           code: (value) {
             setState(() {
@@ -413,8 +422,8 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
               width: MediaQuery.of(context).size.width * 1,
               margin: EdgeInsets.only(top: 15, right: 13, left: 15),
               child: FadeInImage.assetNetwork(
-                placeholderCacheHeight: 50,
-                placeholderCacheWidth: 50,
+                placeholderCacheHeight: 120,
+                placeholderCacheWidth: 120,
                 fit: BoxFit.cover,
                 placeholderFit: BoxFit.fill,
                 placeholder: 'assets/earth.gif',
@@ -435,8 +444,7 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
               child: FadeInImage.assetNetwork(
                 placeholderCacheHeight: 50,
                 placeholderCacheWidth: 50,
-                fit: BoxFit.cover,
-                placeholderFit: BoxFit.fill,
+                placeholderFit: BoxFit.cover,
                 placeholder: 'assets/earth.gif',
                 image:
                     'https://maps.googleapis.com/maps/api/staticmap?center=${lat1},${log2}&zoom=20&size=1080x920&maptype=hybrid&markers=color:red%7C%7C${lat1},${log2}&key=AIzaSyAJt0Zghbk3qm_ZClIQOYeUT0AaV5TeOsI',
@@ -448,10 +456,15 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
         SingleChildScrollView(
             child: Column(children: [
           _file != null
-              ? Container(
-                  height: 200,
-                  width: 300,
-                  child: Image.file(File(_file!.path)),
+              ? Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    height: 200,
+                    width: double.infinity,
+                    child: Image.file(
+                      File(_file!.path),
+                    ),
+                  ),
                 )
               : SizedBox(),
           _file == null
@@ -525,6 +538,7 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
             });
           },
         ),
+
         if (id_khan != 0)
           InkWell(
             onTap: () {
@@ -541,7 +555,6 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Text("land~Building"),
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.3,
                     child: DefaultTextStyle(
@@ -938,38 +951,74 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
   String? commune;
   //MAP
   Future<void> SlideUp(BuildContext context) async {
-    final result = await Navigator.push(
-      context,
+    await Navigator.of(context).push(
       MaterialPageRoute(
-          builder: (context) => HomePage(
-                c_id: code.toString(),
-                district: (value) {
-                  setState(() {
-                    district = value;
-                    Load_khan(district);
-                  });
-                },
-                commune: (value) {
-                  setState(() {
-                    commune = value;
-                    Load_sangkat(value);
-                  });
-                },
-                lat: (value) {
-                  setState(() {
-                    lat1 = double.parse(value);
-                    requestModelAuto.lat = value;
-                  });
-                },
-                log: (value) {
-                  setState(() {
-                    log2 = double.parse(value);
-                    requestModelAuto.lng = value;
-                  });
-                },
-                province: (value) {},
-              )),
+        builder: (context) => map_cross_verbal(
+          get_commune: (value) {
+            setState(() {
+              commune = value;
+              Load_sangkat(value);
+            });
+          },
+          get_district: (value) {
+            setState(() {
+              district = value;
+              Load_khan(district);
+            });
+          },
+          get_lat: (value) {
+            setState(() {
+              lat1 = double.parse(value.toString());
+              requestModelAuto.lat = value;
+            });
+          },
+          get_log: (value) {
+            setState(() {
+              log2 = double.parse(value.toString());
+              requestModelAuto.lng = value;
+            });
+          },
+          get_province: (value) {},
+          asking_price: (value) {
+            setState(() {
+              asking_price = double.parse(value.toString());
+            });
+          },
+        ),
+      ),
     );
+    // final result = await Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //       builder: (context) => HomePage(
+    //             c_id: code.toString(),
+    //             district: (value) {
+    //               setState(() {
+    //                 district = value;
+    //                 Load_khan(district);
+    //               });
+    //             },
+    //             commune: (value) {
+    //               setState(() {
+    //                 commune = value;
+    //                 Load_sangkat(value);
+    //               });
+    //             },
+    //             lat: (value) {
+    //               setState(() {
+    //                 lat1 = double.parse(value);
+    //                 requestModelAuto.lat = value;
+    //               });
+    //             },
+    //             log: (value) {
+    //               setState(() {
+    //                 log2 = double.parse(value);
+    //                 requestModelAuto.lng = value;
+    //               });
+    //             },
+    //             province: (value) {},
+    //           )),
+    // );
     setState(() {
       requestModelAuto.image = code.toString();
     });

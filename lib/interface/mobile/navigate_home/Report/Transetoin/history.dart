@@ -75,7 +75,7 @@ class _Trastoin_PaymentState extends State<Trastoin_Payment> {
                               index_back = int.parse(value.toString());
                               print(index_back.toString());
                             });
-                          }, true, 'control_user'),
+                          }, true, 'control_user', (value) {}),
                         );
                         if (selected != null) {
                           // Handle the selected item here.

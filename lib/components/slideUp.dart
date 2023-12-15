@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, library_private_types_in_public_api, non_constant_identifier_names, use_build_context_synchronously, unnecessary_string_interpolations, prefer_interpolation_to_compose_strings, unused_import, unused_field, unnecessary_new, prefer_collection_literals, prefer_final_fields, unused_element, sized_box_for_whitespace, sort_child_properties_last, avoid_print, unnecessary_brace_in_string_interps
+// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, library_private_types_in_public_api, non_constant_identifier_names, use_build_context_synchronously, unnecessary_string_interpolations, prefer_interpolation_to_compose_strings
 
 /*
 Name: Akshath Jain
@@ -8,72 +8,72 @@ Copyright: © 2021, Akshath Jain. All rights reserved.
 Licensing: More information can be found here: https://github.com/akshathjain/sliding_up_panel/blob/master/LICENSE
 */
 
-import 'dart:async';
-import 'dart:io';
-import 'dart:math';
 import 'package:awesome_dialog/awesome_dialog.dart';
-import 'package:circular_menu/circular_menu.dart';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:getwidget/getwidget.dart';
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:kfa_admin/model/models/search_model.dart';
 
 import 'package:location_geocoder/location_geocoder.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:screenshot/screenshot.dart';
 import 'package:search_map_location/utils/google_search/place.dart';
 import 'package:search_map_location/widget/search_widget.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
-import 'ToFromDate.dart';
+import '../Customs/ProgressHUD.dart';
+import '../interface/mobile/navigate_home/AutoVerbal/property.dart';
+import '../model/models/search_model.dart';
 import 'contants.dart';
-import 'distance.dart';
-import 'landsize.dart';
 import 'numDisplay.dart';
-import 'road.dart';
-import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 typedef OnChangeCallback = void Function(dynamic value);
 
-class HomePage extends StatefulWidget {
-  const HomePage(
+class map_cross_verbal extends StatefulWidget {
+  const map_cross_verbal(
       {super.key,
-      required this.c_id,
-      required this.district,
-      required this.commune,
-      required this.province,
-      required this.log,
-      required this.lat});
-  final String c_id;
-  final OnChangeCallback province;
-  final OnChangeCallback district;
-  final OnChangeCallback commune;
-  final OnChangeCallback log;
-  final OnChangeCallback lat;
+      required this.get_province,
+      required this.get_district,
+      required this.get_commune,
+      required this.get_log,
+      required this.get_lat,
+      required this.asking_price});
+  final OnChangeCallback get_province;
+  final OnChangeCallback get_district;
+  final OnChangeCallback get_commune;
+  final OnChangeCallback get_log;
+  final OnChangeCallback get_lat;
+  final OnChangeCallback asking_price;
   @override
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<map_cross_verbal> {
+  double _panelHeightOpen = 0;
+  final double _panelHeightClosed = 55.0;
+  String googleApikey = "AIzaSyAJt0Zghbk3qm_ZClIQOYeUT0AaV5TeOsI";
+  GoogleMapController? mapController; //contrller for Google map
+  CameraPosition? cameraPosition;
+  final Set<Marker> listMarkerIds = new Set();
+  double latitude = 11.5489; //latitude
+  double longitude = 104.9214;
+  LatLng latLng = const LatLng(11.5489, 104.9214);
+  String address = "";
+  Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
+  List list = [];
+  double adding_price = 0;
   String sendAddrress = '';
-
-  final Set<Marker> _marker = new Set();
-  var _selectedValue;
-  List<String> option = [
-    'Residencial',
-    'Commercial',
-    'Agricultural',
-  ];
-  GoogleMapController? mapController;
+  List data = [];
+  // ignore: prefer_typing_uninitialized_variables
+  var pty;
+  var formatter = NumberFormat("##,###,###,###", "en_US");
+  var date = DateFormat('yyyy-MM-dd').format(DateTime(2020, 01, 01));
+  var date1 = DateFormat('yyyy-MM-dd').format(DateTime.now());
+  bool isApiCallProcess = false;
+  // static const apiKey = "AIzaSyCeogkN2j3bqrqyIuv4GD4bT1n_4lpNlnY";
+  late LocatitonGeocoder geocoder = LocatitonGeocoder(googleApikey);
+  late SearchRequestModel requestModel;
 
   String? _currentAddress;
   Position? _currentPosition;
@@ -110,281 +110,1644 @@ class _HomePageState extends State<HomePage> {
     return true;
   }
 
-  double? lat1;
-  double? log1;
-
   Future<void> _getCurrentLocation() async {
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
 
     setState(() {
-      mapController!.animateCamera(CameraUpdate.newCameraPosition(
-        CameraPosition(
-          target: LatLng(position.latitude, position.longitude),
-          zoom: 16.0,
-        ),
-      ));
-      lat1 = position.latitude;
-      log1 = position.longitude;
-      latLng = LatLng(lat1!, log1!);
-      _addMarker(latLng);
+      latLng = LatLng(position.latitude, position.longitude);
+
+      Marker marker = Marker(
+        markerId: MarkerId('mark'),
+        position: latLng,
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+      );
+      setState(() {
+        listMarkerIds.add(marker);
+        requestModel.lat = latLng.latitude.toString();
+        requestModel.lng = latLng.longitude.toString();
+      });
     });
+    await Show(requestModel);
+    mapController!.animateCamera(CameraUpdate.newCameraPosition(
+      CameraPosition(
+        target: LatLng(position.latitude, position.longitude),
+        zoom: 16.0,
+      ),
+    ));
   }
 
-  double? lat;
-  double? log;
   @override
   void initState() {
     _handleLocationPermission();
-    _getCurrentLocation();
+    Future.delayed(const Duration(seconds: 3), () async {
+      await _getCurrentLocation();
+    });
+
+    // getAddress(latLng);
+    // ignore: unnecessary_new
+    requestModel = new SearchRequestModel(
+      property_type_id: "",
+      num: "5",
+      lat: "",
+      lng: "",
+      land_min: "0",
+      land_max: "",
+      distance: "",
+      fromDate: "",
+      toDate: "",
+    );
     super.initState();
   }
 
-  Uint8List? _imageFile;
-  LatLng latLng = const LatLng(11.519037, 104.915120);
-  CameraPosition? cameraPosition;
-
-  Future<void> _addMarker(LatLng latLng) async {
-    Marker newMarker = Marker(
-      draggable: true,
-      markerId: MarkerId(latLng.toString()),
-      position: latLng,
-      onDragEnd: (value) {
-        latLng = value;
-        Find_by_piont(value.latitude, value.longitude);
-      },
-    );
-
-    setState(() {
-      _marker.clear();
-      Find_by_piont(latLng.latitude, latLng.longitude);
-      // add the new marker to the list of markers
-      _marker.add(newMarker);
-    });
-  }
-
-  var maxSqm1, minSqm1;
-  var maxSqm2, minSqm2;
-
-  int num = 0;
-  double h = 0;
-  static const CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 14.4746,
-  );
-  static const CameraPosition initialCameraPosition =
-      CameraPosition(target: LatLng(37.42796, -122.08574), zoom: 24.0);
-  Set<Marker> markersList = {};
-  late GoogleMapController googleMapController;
-  int id = 1;
-  Set<Polyline> _polylines = Set<Polyline>();
-  List<MapType> style_map = [
-    MapType.satellite,
-    MapType.normal,
-  ];
-  TextEditingController Tcon = new TextEditingController();
-  int index = 0;
-  String? name_of_place;
-
-  GlobalKey<FormState> check = GlobalKey<FormState>();
-  var input;
-  double? wth;
-  double? wth2;
   @override
   Widget build(BuildContext context) {
-    var w = MediaQuery.of(context).size.width;
-    if (w < 600) {
-      wth = w * 0.8;
-      wth2 = w * 0.5;
-    } else {
-      wth = w * 0.5;
-      wth2 = w * 0.3;
-    }
+    return ProgressHUD(
+      color: kPrimaryColor,
+      inAsyncCall: isApiCallProcess,
+      opacity: 0.3,
+      child: _uiSteup(context),
+    );
+  }
+
+  Widget _uiSteup(BuildContext context) {
+    // TextEditingController search = TextEditingController();
+    _panelHeightOpen = (groupValue == 0)
+        ? MediaQuery.of(context).size.height * 0.35
+        : MediaQuery.of(context).size.height * 0.15;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue[600],
+        title: Text("Cross property check"),
         centerTitle: true,
-        title: const Text("Property Location"),
+        elevation: 0.0,
+        backgroundColor: Colors.indigo[900],
         leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: const Icon(Icons.system_update_tv_rounded)),
+          onPressed: () {
+            setState(() {
+              if ((data_adding_correct.length == int.parse(requestModel.num)) &&
+                  (groupValue == 0)) {
+                widget.asking_price(adding_price);
+                widget.get_lat(requestModel.lat);
+                widget.get_log(requestModel.lng);
+              } else {
+                widget.asking_price(null);
+              }
+            });
+            Navigator.pop(context);
+          },
+          icon: Icon(Icons.save_alt_outlined),
+        ),
+        actions: [
+          IconButton(
+              onPressed: () {
+                if (groupValue == 0) {
+                  Dialog(context);
+                } else {
+                  for_market_price();
+                }
+              },
+              icon: Icon(Icons.line_style_rounded, color: Colors.white))
+        ],
       ),
-      body: Stack(
-        children: [
-          SizedBox(
-              height: 800,
-              child: GoogleMap(
-                initialCameraPosition: CameraPosition(target: latLng, zoom: 12),
-
-                // markers: Set.from(_marker),
-                zoomGesturesEnabled: true,
-                zoomControlsEnabled: false,
-                markers: _marker.map((e) => e).toSet(),
-
-                onMapCreated: (GoogleMapController controller) {
-                  mapController = controller;
-                },
-                onCameraMove: (CameraPosition cameraPositiona) {
-                  cameraPosition = cameraPositiona; //when map is dragging
-                },
-                mapType: style_map[index],
-                onTap: (argument) {
-                  widget.lat(argument.latitude.toString());
-                  widget.log(argument.longitude.toString());
-                  _addMarker(argument);
-                },
-              )),
-          Container(
-            width: wth,
-            margin: EdgeInsets.only(right: 70, top: 10),
-            padding: EdgeInsets.only(left: 10),
-            decoration: BoxDecoration(
-                color: Colors.white, borderRadius: BorderRadius.circular(30)),
-            child: Form(
-              key: check,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  SizedBox(
-                    width: wth2,
-                    child: TextFormField(
-                      keyboardType: TextInputType.text,
-                      controller: Tcon,
-                      onFieldSubmitted: (value) {
-                        setState(() {
-                          h = 0;
-                          input = value;
-                          if (num == 0) {
-                            Find_Lat_log(value);
-                          }
-                        });
-                      },
-                      onChanged: (value) {
-                        // name_place.clear();
-                        setState(() {
-                          input = value;
-                          name_place.clear();
-                          lg.clear();
-                          ln.clear();
-                          h = 0;
-                          num = 0;
-                          get_name_search(value);
-                        });
-                      },
-                      textInputAction: TextInputAction.search,
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                      decoration: InputDecoration(
-                        fillColor: Colors.white,
-                        hintText: "Search",
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.only(top: 2),
-                        hintStyle: TextStyle(
-                          color: Colors.grey[850],
-                          fontSize:
-                              MediaQuery.of(context).textScaleFactor * 0.04,
-                        ),
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                      // splashRadius: 30,
-                      hoverColor: Colors.black,
-                      onPressed: () {
-                        setState(() {
-                          name_place.clear();
-                          lg.clear();
-                          ln.clear();
-
-                          h = 0;
-                          num = 0;
-                          Find_Lat_log(input);
-                        });
-                      },
-                      icon: const Icon(
-                        Icons.search,
-                        size: 30,
-                      )),
-                  IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _getCurrentLocation();
-                        });
-                      },
-                      icon: Icon(Icons.person_pin_circle_outlined))
-                ],
-              ),
-            ),
-          ),
-          if (name_place.length >= 1)
-            Container(
-                height: h,
-                color: Colors.white,
-                margin: EdgeInsets.only(left: 10, right: 55, top: 60),
-                child: ListView.builder(
-                    itemCount: name_place.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: InkWell(
-                          onTap: () {
-                            Tcon;
-                            print(name_place[index]);
-                            h = 0;
-                            Tcon;
-                            num =
-                                1; // use num for when user click on list search
-                            name_of_place != name_place[index].toString();
-                            poin_map_by_search(
-                                ln[index].toString(), lg[index].toString());
-                          },
-                          child: Text(
-                            name_place[index],
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      );
-                    })),
-          Positioned(
-              right: 10,
-              top: 15,
-              child: CircleAvatar(
-                backgroundColor: Colors.white,
-                radius: 21,
-                child: IconButton(
-                  icon: const Icon(
-                    Icons.mp_sharp,
-                    color: Color.fromRGBO(0, 184, 212, 1),
-                    size: 25,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      if (index < 1) {
-                        index = index + 1;
-                      } else {
-                        index = 0;
-                      }
-                    });
+      body: Material(
+        child: Stack(
+          alignment: Alignment.topCenter,
+          children: <Widget>[
+            Positioned(
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: SearchLocation(
+                  apiKey:
+                      'AIzaSyCeogkN2j3bqrqyIuv4GD4bT1n_4lpNlnY', // YOUR GOOGLE MAPS API KEY
+                  country: 'KH',
+                  onSelected: (Place place) {
+                    address = place.description;
+                    getLatLang(address);
                   },
                 ),
-              )),
+              ),
+            ),
+            SlidingUpPanel(
+              maxHeight: _panelHeightOpen,
+              minHeight: _panelHeightClosed,
+              parallaxEnabled: true,
+              body: MapShow(),
+              parallaxOffset: .5,
+              panelBuilder: (ScrollController sc) => _panel(sc),
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(18.0),
+                  topRight: Radius.circular(18.0)),
+              onPanelSlide: (double pos) => setState(() {}),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  int groupValue = 0;
+  bool isChecked = false;
+  bool isChecked_all = false;
+  Widget _panel(ScrollController sc) {
+    return MediaQuery.removePadding(
+      context: context,
+      removeTop: true,
+      child: ListView(
+        controller: sc,
+        children: <Widget>[
+          SizedBox(
+            height: 12.0,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Container(
+                width: 30,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(12.0),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          // SizedBox(
+          //   height: 18.0,
+          // ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                "More Option",
+                style: TextStyle(
+                  fontWeight: FontWeight.normal,
+                  fontSize: 20.0,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 15.0),
+          // RoadDropdown(
+          //   onChanged: (value) {
+          //     // requestModel.comparable_road = value;
+          //     //  print(requestModel.comparable_road);
+          //   },
+          // ),
+          SizedBox(height: 10.0),
+          // Padding(
+          //   padding: const EdgeInsets.only(left: 20, right: 20),
+          //   child: ToFromDate(
+          //     fromDate: (value) {
+          //       requestModel.fromDate = value;
+          //       print(requestModel.fromDate);
+          //     },
+          //     toDate: (value) {
+          //       requestModel.toDate = value;
+          //       // print(requestModel.toDate);
+          //     },
+          //   ),
+          // ),
+          Row(
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Container(
+                width: MediaQuery.of(context).size.width * 0.5,
+                alignment: Alignment.centerRight,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GFRadio(
+                      type: GFRadioType.square,
+                      size: 25,
+                      value: 0,
+                      groupValue: groupValue,
+                      onChanged: (value) {
+                        setState(() {
+                          groupValue = value;
+                        });
+                      },
+                      inactiveIcon: null,
+                      activeBorderColor: const Color.fromARGB(255, 39, 39, 39),
+                      radioColor: GFColors.PRIMARY,
+                    ),
+                    Text(
+                      "By Compereble",
+                      style: TextStyle(fontSize: 12),
+                    )
+                  ],
+                ),
+              ),
+              Container(
+                width: MediaQuery.of(context).size.width * 0.5,
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GFRadio(
+                      type: GFRadioType.square,
+                      size: 25,
+                      value: 1,
+                      groupValue: groupValue,
+                      onChanged: (value) {
+                        setState(() {
+                          groupValue = value;
+                        });
+                      },
+                      inactiveIcon: null,
+                      activeBorderColor: const Color.fromARGB(255, 39, 39, 39),
+                      radioColor: GFColors.PRIMARY,
+                    ),
+                    Text(
+                      "By Market price",
+                      style: TextStyle(fontSize: 12),
+                    )
+                  ],
+                ),
+              )
+            ],
+          ),
+          SizedBox(height: 10.0),
+          // LandSize(
+          //   land_min: (value) {
+          //     setState(() {
+          //       requestModel.land_min = value;
+          //       print(requestModel.fromDate);
+          //     });
+          //   },
+          //   land_max: (value) {
+          //     setState(() {
+          //       requestModel.land_max = value;
+          //       print(requestModel.toDate);
+          //     });
+          //   },
+          // ),
+          SizedBox(height: 10.0),
+          if (groupValue == 0)
+            NumDisplay(
+                onSaved: (newValue) => setState(() {
+                      requestModel.num = newValue!;
+                    })),
+          SizedBox(height: 10.0),
+          if (groupValue == 0)
+            Row(
+              children: [
+                Container(
+                  width: (isChecked == true)
+                      ? MediaQuery.of(context).size.width * 0.65
+                      : MediaQuery.of(context).size.width * 1,
+                  child: PropertyDropdown(
+                    name: (value) {
+                      // propertyType = value;
+                    },
+                    check_onclick: (value) {
+                      setState(() {
+                        isChecked = value;
+                        isChecked_all = false;
+                      });
+                    },
+                    id: (value) {
+                      pty = value;
+                    },
+                    // pro: list[0]['property_type_name'],
+                  ),
+                ),
+                Container(
+                  width: (isChecked == true)
+                      ? MediaQuery.of(context).size.width * 0.35
+                      : 0,
+                  alignment: Alignment.centerLeft,
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    children: [
+                      GFCheckbox(
+                        size: 25,
+                        activeBgColor: GFColors.PRIMARY,
+                        onChanged: (value) {
+                          setState(() {
+                            isChecked_all = value;
+                            isChecked = false;
+                            pty = null;
+                          });
+                        },
+                        value: isChecked_all,
+                        inactiveIcon: null,
+                      ),
+                      Text(
+                        "Show All",
+                        style: TextStyle(fontSize: 12),
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          // Distance(
+          //     onSaved: (input) => setState(() {
+          //           requestModel.distance = input!;
+          //         })),
+          addPaddingWhenKeyboardAppears(),
         ],
       ),
     );
   }
 
+  SizedBox addPaddingWhenKeyboardAppears() {
+    final viewInsets = EdgeInsets.fromWindowPadding(
+      WidgetsBinding.instance.window.viewInsets,
+      WidgetsBinding.instance.window.devicePixelRatio,
+    );
+
+    final bottomOffset = viewInsets.bottom;
+    const hiddenKeyboard = 0.0; // Always 0 if keyboard is not opened
+    final isNeedPadding = bottomOffset != hiddenKeyboard;
+
+    return SizedBox(height: isNeedPadding ? bottomOffset : hiddenKeyboard);
+  }
+
+  Stack MapShow() {
+    return Stack(
+      children: [
+        GoogleMap(
+          //   markers: getmarkers(),
+          markers: listMarkerIds.map((e) => e).toSet(),
+          //Map widget from google_maps_flutter package
+          zoomGesturesEnabled: true, //enable Zoom in, out on map
+          initialCameraPosition: CameraPosition(
+            //innital position in map
+            target: latLng, //initial position
+            zoom: 12.0, //initial zoom level
+          ),
+          myLocationButtonEnabled: true,
+          myLocationEnabled: true,
+          mapType: MapType.hybrid, //map type
+          onMapCreated: (controller) {
+            //method called when map is created
+            setState(() {
+              mapController = controller;
+            });
+          },
+          onTap: (argument) {
+            MarkerId markerId = MarkerId('mark');
+
+            Marker marker = Marker(
+              markerId: MarkerId('mark'),
+              position: argument,
+              icon: BitmapDescriptor.defaultMarkerWithHue(
+                  BitmapDescriptor.hueRed),
+            );
+            setState(() {
+              adding_price = 0;
+              listMarkerIds.clear();
+              data_adding_correct.clear();
+
+              listMarkerIds.add(marker);
+              requestModel.lat = argument.latitude.toString();
+              requestModel.lng = argument.longitude.toString();
+
+              getAddress(argument);
+              Show(requestModel);
+            });
+          },
+          onCameraMove: (CameraPosition cameraPositiona) {
+            cameraPosition = cameraPositiona; //when map is dragging
+          },
+        ),
+        Align(
+          alignment: Alignment.topLeft,
+          child: Container(
+            margin: EdgeInsets.only(top: 10, left: 2),
+            width: MediaQuery.of(context).size.width * 0.8,
+            child: SearchLocation(
+              apiKey:
+                  'AIzaSyCeogkN2j3bqrqyIuv4GD4bT1n_4lpNlnY', // YOUR GOOGLE MAPS API KEY
+              country: 'KH',
+              onSelected: (Place place) {
+                address = place.description;
+                // print(place.description);
+                getLatLang(address);
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void Clear() {
+    setState(() {
+      for (var i = 0; i < list.length; i++) {
+        MarkerId markerId = MarkerId('$i');
+        listMarkerIds.remove(markerId);
+      }
+    });
+  }
+
+  List data_adding_correct = [];
+  double? min, max;
+  Future<void> Show(SearchRequestModel requestModel) async {
+    // var rs = await http
+    //     .get(Uri.parse('https://kfahrm.cc/laravel/public/api/comparable/list?page=100'));
+
+    if (groupValue == 0) {
+      setState(() {
+        isApiCallProcess = true;
+      });
+      final Jsondata;
+      if (pty != null) {
+        Jsondata = {
+          "property_type_id": pty,
+          "num": requestModel.num,
+          "lat": requestModel.lat,
+          "lng": requestModel.lng,
+        };
+      } else {
+        Jsondata = {
+          "num": requestModel.num,
+          "lat": requestModel.lat,
+          "lng": requestModel.lng,
+        };
+      }
+      final rs = await http.post(
+          Uri.parse(
+              'https://www.oneclickonedollar.com/laravel_kfa_2023/public/api/map/map_action'),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(Jsondata));
+      if (rs.statusCode == 200) {
+        var jsonData = jsonDecode(rs.body);
+        setState(() {
+          list = jsonData['autoverbal'];
+        });
+      }
+      Map map = list.asMap();
+      if (requestModel.lat.isEmpty || requestModel.lng.isEmpty) {
+        setState(() {
+          isApiCallProcess = false;
+        });
+        AwesomeDialog(
+          context: context,
+          dialogType: DialogType.error,
+          animType: AnimType.rightSlide,
+          headerAnimationLoop: false,
+          title: 'Please tap on map to select location',
+          btnOkOnPress: () {},
+          btnOkIcon: Icons.cancel,
+          btnOkColor: Colors.red,
+        ).show();
+      } else {
+        setState(() {
+          isApiCallProcess = false;
+          max = 0;
+          min = 0;
+        });
+        if (map.isEmpty) {
+          markers.clear();
+          AwesomeDialog(
+            context: context,
+            dialogType: DialogType.info,
+            animType: AnimType.rightSlide,
+            headerAnimationLoop: false,
+            title: 'No data found!',
+            desc: "You can try to change Property.",
+            btnOkOnPress: () {},
+            btnOkIcon: Icons.cancel,
+            btnOkColor: Colors.blue,
+          ).show();
+        } else {
+          int index = 0;
+          for (var i = 0; i < map.length; i++) {
+            if (i == 0) {
+              if (map[i]['comparable_adding_price'] == '') {
+                map[i]['comparable_adding_price'] = '0';
+                adding_price +=
+                    double.parse(map[i]['comparable_adding_price']) /
+                        map.length;
+                // print(map[i]['comparable_adding_price']);
+              } else if (map[i]['comparable_adding_price'].contains(',')) {
+                adding_price += double.parse(
+                        map[i]['comparable_adding_price'].replaceAll(",", "")) /
+                    map.length;
+                // print(map[i]['comparable_adding_price']);
+                //print(map[i]['comparable_adding_price'].split(",")[0]);
+              } else {
+                adding_price +=
+                    (double.parse(map[i]['comparable_adding_price'])) /
+                        map.length;
+              }
+              setState(() {
+                data_adding_correct.add(map[i]);
+                // widget.asking_price(adding_price);
+              });
+            } else if (i > 0) {
+              if ((data_adding_correct.length == int.parse(requestModel.num)) ||
+                  (i == map.length - 1)) {
+                break;
+              } else {
+                if ((map[i]['latlong_log'] != map[i - 1]['latlong_log']) &&
+                    (map[i]['comparable_adding_price'] !=
+                        map[i - 1]['comparable_adding_price'])) {
+                  if (map[i]['comparable_adding_price'] == '') {
+                    map[i]['comparable_adding_price'] = '0';
+                    adding_price +=
+                        double.parse(map[i]['comparable_adding_price']) /
+                            int.parse(requestModel.num);
+                  } else if (map[i]['comparable_adding_price'].contains(',')) {
+                    // print(map[i]['comparable_adding_price'].replaceAll(",", ""));
+                    adding_price += double.parse(map[i]
+                                ['comparable_adding_price']
+                            .replaceAll(",", "")) /
+                        int.parse(requestModel.num);
+                  } else {
+                    adding_price +=
+                        (double.parse(map[i]['comparable_adding_price'])) /
+                            int.parse(requestModel.num);
+                  }
+                  setState(() {
+                    data_adding_correct.add(map[i]);
+                  });
+                }
+              }
+            }
+          }
+
+          // print("\n\n\n\n\nkoko ${listMarkerIds.length}  \n\n\n\n\n");
+        }
+      }
+      for (int i = 0; i < data_adding_correct.length; i++) {
+        if (data_adding_correct[i]['comparable_property_id'] == 15) {
+          MarkerId markerId = MarkerId(i.toString());
+          Marker marker = Marker(
+            markerId: markerId,
+            position: LatLng(
+              double.parse(data_adding_correct[i]['latlong_log'].toString()),
+              double.parse(data_adding_correct[i]['latlong_la'].toString()),
+            ),
+            icon: await BitmapDescriptor.fromAssetImage(
+                ImageConfiguration(size: Size(50, 50)), 'assets/icons/l.png'),
+            onTap: () {
+              setState(() {
+                showDialog<String>(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    title: Text(
+                      "Property{${i + 1}} ${data_adding_correct[i]['property_type_name']}",
+                      style: TextStyle(
+                          color: kPrimaryColor, fontWeight: FontWeight.bold),
+                    ),
+                    content: SizedBox(
+                      height: 150,
+                      child: Row(
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('ID\'s property',
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                'Price',
+                                style: TextStyle(
+                                    color: kImageColor,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Text('Owner', style: TextStyle(fontSize: 12)),
+                              Text('Land-Width',
+                                  style: TextStyle(fontSize: 12)),
+                              Text('Land-Length',
+                                  style: TextStyle(fontSize: 12)),
+                              Text('Land-Total',
+                                  style: TextStyle(fontSize: 12)),
+                            ],
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]['comparable_id']
+                                          .toString(),
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                '  :   ' +
+                                    data_adding_correct[i]
+                                        ['comparable_adding_price'] +
+                                    '\$',
+                                style: TextStyle(
+                                    color: kImageColor,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]['agenttype_name'],
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]
+                                          ['comparable_land_width'],
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]
+                                          ['comparable_land_length'],
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                  '  :   ' +
+                                      formatter.format(double.parse(
+                                          data_adding_correct[i]
+                                                  ['comparable_land_total']
+                                              .replaceAll(",", "")
+                                              .toString())),
+                                  style: TextStyle(fontSize: 12)),
+                              // Text('  :   ' + map[i]['comparable_survey_date']),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, 'OK'),
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
+                );
+              });
+            },
+          );
+          setState(() {
+            isApiCallProcess = false;
+            listMarkerIds.add(marker);
+          });
+        } else if (data_adding_correct[i]['comparable_property_id'] == 10) {
+          MarkerId markerId = MarkerId(i.toString());
+          Marker marker = Marker(
+            markerId: markerId,
+            position: LatLng(
+              double.parse(data_adding_correct[i]['latlong_log'].toString()),
+              double.parse(data_adding_correct[i]['latlong_la'].toString()),
+            ),
+            icon: await BitmapDescriptor.fromAssetImage(
+                ImageConfiguration(size: Size(50, 50)), 'assets/icons/f.png'),
+            onTap: () {
+              setState(() {
+                showDialog<String>(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    title: Text(
+                      "Property{${i + 1}} ${data_adding_correct[i]['property_type_name']}",
+                      style: TextStyle(
+                          color: kPrimaryColor, fontWeight: FontWeight.bold),
+                    ),
+                    content: SizedBox(
+                      height: 150,
+                      child: Row(
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('ID\'s property',
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                'Price',
+                                style: TextStyle(
+                                    color: kImageColor,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Text('Owner', style: TextStyle(fontSize: 12)),
+                              Text('Land-Width',
+                                  style: TextStyle(fontSize: 12)),
+                              Text('Land-Length',
+                                  style: TextStyle(fontSize: 12)),
+                              Text('Land-Total',
+                                  style: TextStyle(fontSize: 12)),
+                            ],
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]['comparable_id']
+                                          .toString(),
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                '  :   ' +
+                                    data_adding_correct[i]
+                                        ['comparable_adding_price'] +
+                                    '\$',
+                                style: TextStyle(
+                                    color: kImageColor,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]['agenttype_name'],
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]
+                                          ['comparable_land_width'],
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]
+                                          ['comparable_land_length'],
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                  '  :   ' +
+                                      formatter.format(double.parse(
+                                          data_adding_correct[i]
+                                                  ['comparable_land_total']
+                                              .replaceAll(",", "")
+                                              .toString())),
+                                  style: TextStyle(fontSize: 12)),
+                              // Text('  :   ' + map[i]['comparable_survey_date']),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, 'OK'),
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
+                );
+              });
+            },
+          );
+          setState(() {
+            isApiCallProcess = false;
+            listMarkerIds.add(marker);
+          });
+        } else if (data_adding_correct[i]['comparable_property_id'] == 33) {
+          MarkerId markerId = MarkerId(i.toString());
+          Marker marker = Marker(
+            markerId: markerId,
+            position: LatLng(
+              double.parse(data_adding_correct[i]['latlong_log'].toString()),
+              double.parse(data_adding_correct[i]['latlong_la'].toString()),
+            ),
+            icon: await BitmapDescriptor.fromAssetImage(
+                ImageConfiguration(size: Size(50, 50)), 'assets/icons/v.png'),
+            onTap: () {
+              setState(() {
+                showDialog<String>(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    title: Text(
+                      "Property{${i + 1}} ${data_adding_correct[i]['property_type_name']}",
+                      style: TextStyle(
+                          color: kPrimaryColor, fontWeight: FontWeight.bold),
+                    ),
+                    content: SizedBox(
+                      height: 150,
+                      child: Row(
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('ID\'s property',
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                'Price',
+                                style: TextStyle(
+                                    color: kImageColor,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Text('Owner', style: TextStyle(fontSize: 12)),
+                              Text('Land-Width',
+                                  style: TextStyle(fontSize: 12)),
+                              Text('Land-Length',
+                                  style: TextStyle(fontSize: 12)),
+                              Text('Land-Total',
+                                  style: TextStyle(fontSize: 12)),
+                            ],
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]['comparable_id']
+                                          .toString(),
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                '  :   ' +
+                                    data_adding_correct[i]
+                                        ['comparable_adding_price'] +
+                                    '\$',
+                                style: TextStyle(
+                                    color: kImageColor,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]['agenttype_name'],
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]
+                                          ['comparable_land_width'],
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]
+                                          ['comparable_land_length'],
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                  '  :   ' +
+                                      formatter.format(double.parse(
+                                          data_adding_correct[i]
+                                                  ['comparable_land_total']
+                                              .replaceAll(",", "")
+                                              .toString())),
+                                  style: TextStyle(fontSize: 12)),
+                              // Text('  :   ' + map[i]['comparable_survey_date']),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, 'OK'),
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
+                );
+              });
+            },
+          );
+          setState(() {
+            isApiCallProcess = false;
+            listMarkerIds.add(marker);
+          });
+        } else if (data_adding_correct[i]['comparable_property_id'] == 14) {
+          MarkerId markerId = MarkerId(i.toString());
+          Marker marker = Marker(
+            markerId: markerId,
+            position: LatLng(
+              double.parse(data_adding_correct[i]['latlong_log'].toString()),
+              double.parse(data_adding_correct[i]['latlong_la'].toString()),
+            ),
+            icon: await BitmapDescriptor.fromAssetImage(
+                ImageConfiguration(size: Size(50, 50)), 'assets/icons/h.png'),
+            onTap: () {
+              setState(() {
+                showDialog<String>(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    title: Text(
+                      "Property{${i + 1}} ${data_adding_correct[i]['property_type_name']}",
+                      style: TextStyle(
+                          color: kPrimaryColor, fontWeight: FontWeight.bold),
+                    ),
+                    content: SizedBox(
+                      height: 150,
+                      child: Row(
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('ID\'s property',
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                'Price',
+                                style: TextStyle(
+                                    color: kImageColor,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Text('Owner', style: TextStyle(fontSize: 12)),
+                              Text('Land-Width',
+                                  style: TextStyle(fontSize: 12)),
+                              Text('Land-Length',
+                                  style: TextStyle(fontSize: 12)),
+                              Text('Land-Total',
+                                  style: TextStyle(fontSize: 12)),
+                            ],
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]['comparable_id']
+                                          .toString(),
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                '  :   ' +
+                                    data_adding_correct[i]
+                                        ['comparable_adding_price'] +
+                                    '\$',
+                                style: TextStyle(
+                                    color: kImageColor,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]['agenttype_name'],
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]
+                                          ['comparable_land_width'],
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]
+                                          ['comparable_land_length'],
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                  '  :   ' +
+                                      formatter.format(double.parse(
+                                          data_adding_correct[i]
+                                                  ['comparable_land_total']
+                                              .replaceAll(",", "")
+                                              .toString())),
+                                  style: TextStyle(fontSize: 12)),
+                              // Text('  :   ' + map[i]['comparable_survey_date']),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, 'OK'),
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
+                );
+              });
+            },
+          );
+          setState(() {
+            isApiCallProcess = false;
+            listMarkerIds.add(marker);
+          });
+        } else if (data_adding_correct[i]['comparable_property_id'] == 4) {
+          MarkerId markerId = MarkerId(i.toString());
+          Marker marker = Marker(
+            markerId: markerId,
+            position: LatLng(
+              double.parse(data_adding_correct[i]['latlong_log'].toString()),
+              double.parse(data_adding_correct[i]['latlong_la'].toString()),
+            ),
+            icon: await BitmapDescriptor.fromAssetImage(
+                ImageConfiguration(size: Size(50, 50)), 'assets/icons/b.png'),
+            onTap: () {
+              setState(() {
+                showDialog<String>(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    title: Text(
+                      "Property{${i + 1}} ${data_adding_correct[i]['property_type_name']}",
+                      style: TextStyle(
+                          color: kPrimaryColor, fontWeight: FontWeight.bold),
+                    ),
+                    content: SizedBox(
+                      height: 150,
+                      child: Row(
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('ID\'s property',
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                'Price',
+                                style: TextStyle(
+                                    color: kImageColor,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Text('Owner', style: TextStyle(fontSize: 12)),
+                              Text('Land-Width',
+                                  style: TextStyle(fontSize: 12)),
+                              Text('Land-Length',
+                                  style: TextStyle(fontSize: 12)),
+                              Text('Land-Total',
+                                  style: TextStyle(fontSize: 12)),
+                            ],
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]['comparable_id']
+                                          .toString(),
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                '  :   ' +
+                                    data_adding_correct[i]
+                                        ['comparable_adding_price'] +
+                                    '\$',
+                                style: TextStyle(
+                                    color: kImageColor,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]['agenttype_name'],
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]
+                                          ['comparable_land_width'],
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]
+                                          ['comparable_land_length'],
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                  '  :   ' +
+                                      formatter.format(double.parse(
+                                          data_adding_correct[i]
+                                                  ['comparable_land_total']
+                                              .replaceAll(",", "")
+                                              .toString())),
+                                  style: TextStyle(fontSize: 12)),
+                              // Text('  :   ' + map[i]['comparable_survey_date']),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, 'OK'),
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
+                );
+              });
+            },
+          );
+          setState(() {
+            isApiCallProcess = false;
+            listMarkerIds.add(marker);
+          });
+        } else if (data_adding_correct[i]['comparable_property_id'] == 29) {
+          MarkerId markerId = MarkerId(i.toString());
+          Marker marker = Marker(
+            markerId: markerId,
+            position: LatLng(
+              double.parse(data_adding_correct[i]['latlong_log'].toString()),
+              double.parse(data_adding_correct[i]['latlong_la'].toString()),
+            ),
+            icon: await BitmapDescriptor.fromAssetImage(
+                ImageConfiguration(size: Size(50, 50)), 'assets/icons/v.png'),
+            onTap: () {
+              setState(() {
+                showDialog<String>(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    title: Text(
+                      "Property{${i + 1}} ${data_adding_correct[i]['property_type_name']}",
+                      style: TextStyle(
+                          color: kPrimaryColor, fontWeight: FontWeight.bold),
+                    ),
+                    content: SizedBox(
+                      height: 150,
+                      child: Row(
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('ID\'s property',
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                'Price',
+                                style: TextStyle(
+                                    color: kImageColor,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Text('Owner', style: TextStyle(fontSize: 12)),
+                              Text('Land-Width',
+                                  style: TextStyle(fontSize: 12)),
+                              Text('Land-Length',
+                                  style: TextStyle(fontSize: 12)),
+                              Text('Land-Total',
+                                  style: TextStyle(fontSize: 12)),
+                            ],
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]['comparable_id']
+                                          .toString(),
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                '  :   ' +
+                                    data_adding_correct[i]
+                                        ['comparable_adding_price'] +
+                                    '\$',
+                                style: TextStyle(
+                                    color: kImageColor,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]['agenttype_name'],
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]
+                                          ['comparable_land_width'],
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]
+                                          ['comparable_land_length'],
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                  '  :   ' +
+                                      formatter.format(double.parse(
+                                          data_adding_correct[i]
+                                                  ['comparable_land_total']
+                                              .replaceAll(",", "")
+                                              .toString())),
+                                  style: TextStyle(fontSize: 12)),
+                              // Text('  :   ' + map[i]['comparable_survey_date']),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, 'OK'),
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
+                );
+              });
+            },
+          );
+          setState(() {
+            isApiCallProcess = false;
+            listMarkerIds.add(marker);
+          });
+        } else {
+          MarkerId markerId = MarkerId(i.toString());
+          Marker marker = Marker(
+            markerId: markerId,
+            position: LatLng(
+              double.parse(data_adding_correct[i]['latlong_log'].toString()),
+              double.parse(data_adding_correct[i]['latlong_la'].toString()),
+            ),
+            icon: await BitmapDescriptor.fromAssetImage(
+                ImageConfiguration(size: Size(50, 50)), 'assets/icons/a.png'),
+            onTap: () {
+              setState(() {
+                showDialog<String>(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    title: Text(
+                      "Property{${i + 1}} ${data_adding_correct[i]['property_type_name']}",
+                      style: TextStyle(
+                          color: kPrimaryColor, fontWeight: FontWeight.bold),
+                    ),
+                    content: SizedBox(
+                      height: 150,
+                      child: Row(
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('ID\'s property',
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                'Price',
+                                style: TextStyle(
+                                    color: kImageColor,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Text('Owner', style: TextStyle(fontSize: 12)),
+                              Text('Land-Width',
+                                  style: TextStyle(fontSize: 12)),
+                              Text('Land-Length',
+                                  style: TextStyle(fontSize: 12)),
+                              Text('Land-Total',
+                                  style: TextStyle(fontSize: 12)),
+                            ],
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]['comparable_id']
+                                          .toString(),
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                '  :   ' +
+                                    data_adding_correct[i]
+                                        ['comparable_adding_price'] +
+                                    '\$',
+                                style: TextStyle(
+                                    color: kImageColor,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]['agenttype_name'],
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]
+                                          ['comparable_land_width'],
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                  '  :   ' +
+                                      data_adding_correct[i]
+                                          ['comparable_land_length'],
+                                  style: TextStyle(fontSize: 12)),
+                              Text(
+                                  '  :   ' +
+                                      formatter.format(double.parse(
+                                          data_adding_correct[i]
+                                                  ['comparable_land_total']
+                                              .replaceAll(",", "")
+                                              .toString())),
+                                  style: TextStyle(fontSize: 12)),
+                              // Text('  :   ' + map[i]['comparable_survey_date']),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, 'OK'),
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
+                );
+              });
+            },
+          );
+          setState(() {
+            isApiCallProcess = false;
+            listMarkerIds.add(marker);
+          });
+        }
+      }
+      Dialog(context);
+    } else {
+      await Find_by_piont(
+          double.parse(requestModel.lat), double.parse(requestModel.lng));
+      for_market_price();
+    }
+  }
+
+  Future Dialog(BuildContext context) {
+    min = adding_price - (0.1 * adding_price);
+    max = adding_price - (0.05 * adding_price);
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        actions: [
+          TextButton(
+            child: Text('Close'),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          )
+        ],
+        content: Container(
+          height: MediaQuery.of(context).size.height * 0.55,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                for (int i = 0; i < data_adding_correct.length; i++)
+                  Card(
+                    elevation: 10,
+                    child: ListTile(
+                      title: Text(
+                          "comparable id : " +
+                              data_adding_correct[i]['comparable_id']
+                                  .toString(),
+                          style: TextStyle(fontSize: 12)),
+                      subtitle: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                              "property : " +
+                                  data_adding_correct[i]['property_type_name']
+                                      .toString(),
+                              style: TextStyle(fontSize: 10)),
+                          Text(
+                              "Owner : " +
+                                  data_adding_correct[i]['agenttype_name']
+                                      .toString(),
+                              style: TextStyle(fontSize: 10)),
+                          Text(
+                              "adding price : " +
+                                  formatter.format(double.parse(
+                                      data_adding_correct[i]
+                                              ['comparable_adding_price']
+                                          .replaceAll(",", "")
+                                          .toString())) +
+                                  "\$",
+                              style: TextStyle(fontSize: 10)),
+                          Text(
+                              "Date : " +
+                                  data_adding_correct[i]
+                                          ['comparable_survey_date']
+                                      .toString(),
+                              style: TextStyle(fontSize: 10)),
+                        ],
+                      ),
+                    ),
+                  ),
+                SizedBox(
+                  height: 20,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Text("minimum : ${formatter.format(min)}\$",
+                        style: TextStyle(
+                          fontSize: 11,
+                          decorationStyle: TextDecorationStyle.dashed,
+                          decoration: TextDecoration.underline,
+                        )),
+                    Text("maximum : ${formatter.format(max)}\$",
+                        style: TextStyle(
+                          fontSize: 11,
+                          decorationStyle: TextDecorationStyle.dashed,
+                          decoration: TextDecoration.underline,
+                        )),
+                  ],
+                ),
+                Text(
+                    "Avg price of property : " +
+                        formatter.format(adding_price).toString() +
+                        "\$",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      decorationStyle: TextDecorationStyle.dashed,
+                      decoration: TextDecoration.underline,
+                    )),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future for_market_price() {
+    return AwesomeDialog(
+      btnOkOnPress: () {},
+      context: context,
+      animType: AnimType.leftSlide,
+      headerAnimationLoop: false,
+      dialogType: DialogType.infoReverse,
+      showCloseIcon: false,
+      title: "Check price by KFA",
+      customHeader: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Image.asset(
+          'assets/images/New_KFA_Logo.png',
+          filterQuality: FilterQuality.high,
+          fit: BoxFit.fitWidth,
+        ),
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text(
+            "Residential",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 220, 221, 223),
+              boxShadow: const [BoxShadow(blurRadius: 1, color: Colors.grey)],
+              border: Border.all(
+                width: 0.2,
+              ),
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Avg = ",
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text("${formatter.format(R_avg)}\$",
+                        style: const TextStyle(
+                            color: Color.fromARGB(255, 242, 11, 134)))
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Row(
+                      children: [
+                        const Text("Min = ",
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text("${formatter.format(double.parse(minSqm1))}\$",
+                            style: const TextStyle(
+                                color: Color.fromARGB(255, 242, 11, 134)))
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Text("Max = ",
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text("${formatter.format(double.parse(maxSqm1))}\$",
+                            style: const TextStyle(
+                                color: Color.fromARGB(255, 242, 11, 134)))
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const Text(
+            "Commercial",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 220, 221, 223),
+              border: Border.all(
+                width: 0.2,
+              ),
+              boxShadow: const [BoxShadow(blurRadius: 1, color: Colors.grey)],
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Avg = ",
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text("${formatter.format(C_avg)}\$",
+                        style: const TextStyle(
+                            color: Color.fromARGB(255, 242, 11, 134)))
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Row(
+                      children: [
+                        const Text("Min = ",
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text("${formatter.format(double.parse(minSqm2))}\$",
+                            style: const TextStyle(
+                                color: Color.fromARGB(255, 242, 11, 134)))
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Text("Max = ",
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text("${formatter.format(double.parse(maxSqm2))}\$",
+                            style: const TextStyle(
+                                color: Color.fromARGB(255, 242, 11, 134)))
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Text(
+            ' $commune /  $district',
+            style: const TextStyle(fontStyle: FontStyle.italic, fontSize: 10),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    ).show();
+  }
+
+  ///converts `coordinates` to actual `address` using google map api
+  Future<void> getAddress(LatLng latLng) async {
+    final coordinates = Coordinates(latLng.latitude, latLng.longitude);
+    try {
+      final address = await geocoder.findAddressesFromCoordinates(coordinates);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('SOMETING WENT WRONG\nDID YOU ADD API KEY '),
+        ),
+      );
+      rethrow;
+    }
+  }
+
+  ///converts `address` to actual `coordinates` using google map api
+  Future<void> getLatLang(String adds) async {
+    try {
+      final address = await geocoder.findAddressesFromQuery(adds);
+      var message = address.first.coordinates.toString();
+      latitude = address.first.coordinates.latitude!;
+      longitude = address.first.coordinates.longitude!;
+      mapController?.animateCamera(CameraUpdate.newCameraPosition(
+          CameraPosition(target: LatLng(latitude, longitude), zoom: 15)));
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(
+      //     content: Text(message),
+      //   ),
+      // );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('SOMETING WENT WRONG\nDID YOU ADD API KEY '),
+        ),
+      );
+      rethrow;
+    }
+  }
+
+  var maxSqm1, minSqm1;
+  var maxSqm2, minSqm2;
+  var commune, district;
+  dynamic R_avg, C_avg;
   Future<void> Find_by_piont(double la, double lo) async {
     final response = await http.get(Uri.parse(
         'https://maps.googleapis.com/maps/api/geocode/json?latlng=${la},${lo}&key=AIzaSyAJt0Zghbk3qm_ZClIQOYeUT0AaV5TeOsI'));
 
     if (response.statusCode == 200) {
-      // Successful response
       var jsonResponse = json.decode(response.body);
       var location = jsonResponse['results'][0]['geometry']['location'];
       var lati = location['lat'];
       var longi = location['lng'];
-      widget.lat(lati.toString());
-      widget.log(longi.toString());
+      widget.get_lat(lati.toString());
+      widget.get_log(longi.toString());
       List ls = jsonResponse['results'];
       List ac;
       bool check_sk = false, check_kn = false;
@@ -401,8 +1764,8 @@ class _HomePageState extends State<HomePage> {
                     ['short_name']);
                 // Load_khan(district);
 
-                widget.district(jsonResponse['results'][j]['address_components']
-                    [i]['short_name']);
+                widget.get_district(jsonResponse['results'][j]
+                    ['address_components'][i]['short_name']);
               });
             }
             if (jsonResponse['results'][j]['address_components'][i]['types']
@@ -413,8 +1776,8 @@ class _HomePageState extends State<HomePage> {
                 commune = (jsonResponse['results'][j]['address_components'][i]
                     ['short_name']);
                 // Load_sangkat(commune);
-                widget.commune(jsonResponse['results'][j]['address_components']
-                    [i]['short_name']);
+                widget.get_commune(jsonResponse['results'][j]
+                    ['address_components'][i]['short_name']);
               });
             }
           }
@@ -424,320 +1787,19 @@ class _HomePageState extends State<HomePage> {
           'https://www.oneclickonedollar.com/laravel_kfa_2023/public/api/map/check_price?Khan_Name=${district.toString()}&Sangkat_Name=${commune.toString()}'));
       var jsonResponse_rc = json.decode(response_rc.body);
       setState(() {
-        maxSqm1 = jsonResponse_rc['residential'][0]['Min_Value'].toString();
-        minSqm1 = jsonResponse_rc['residential'][0]['Max_Value'].toString();
-        maxSqm2 = jsonResponse_rc['commercial'][0]['Min_Value'].toString();
-        minSqm2 = jsonResponse_rc['commercial'][0]['Max_Value'].toString();
-        AwesomeDialog(
-          btnOkOnPress: () {},
-          context: context,
-          animType: AnimType.leftSlide,
-          headerAnimationLoop: false,
-          dialogType: DialogType.infoReverse,
-          showCloseIcon: false,
-          title: "Check price by KFA",
-          customHeader: Image.asset(
-            'assets/images/new_logo.png',
-            filterQuality: FilterQuality.high,
-            fit: BoxFit.contain,
-          ),
-          body: Column(
-            children: [
-              const Text(
-                "Price for commercial",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 220, 221, 223),
-                  boxShadow: const [
-                    BoxShadow(blurRadius: 1, color: Colors.grey)
-                  ],
-                  border: Border.all(
-                    width: 0.2,
-                  ),
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Row(
-                      children: [
-                        const Text("Max = ",
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text("${maxSqm1}0\$",
-                            style: const TextStyle(color: Colors.red))
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        const Text("Min = ",
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text("${minSqm1}0\$",
-                            style: const TextStyle(color: Colors.red))
-                      ],
-                    )
-                  ],
-                ),
-              ),
-              const Text(
-                "Price for residential",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 220, 221, 223),
-                  border: Border.all(
-                    width: 0.2,
-                  ),
-                  boxShadow: const [
-                    BoxShadow(blurRadius: 1, color: Colors.grey)
-                  ],
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Row(
-                      children: [
-                        const Text("Max = ",
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text("${maxSqm2}0\$",
-                            style: const TextStyle(color: Colors.red))
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        const Text("Min = ",
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text("${minSqm2}0\$",
-                            style: const TextStyle(color: Colors.red))
-                      ],
-                    )
-                  ],
-                ),
-              ),
-              Text(
-                ' $commune /  $district',
-                style:
-                    const TextStyle(fontStyle: FontStyle.italic, fontSize: 10),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ).show();
+        maxSqm1 = jsonResponse_rc['residential'][0]['Max_Value'].toString();
+        minSqm1 = jsonResponse_rc['residential'][0]['Min_Value'].toString();
+        maxSqm2 = jsonResponse_rc['commercial'][0]['Max_Value'].toString();
+        minSqm2 = jsonResponse_rc['commercial'][0]['Min_Value'].toString();
+        R_avg = (double.parse(maxSqm1.toString()) +
+                double.parse(minSqm1.toString())) /
+            2;
+        C_avg = (double.parse(maxSqm2.toString()) +
+                double.parse(minSqm2.toString())) /
+            2;
       });
-      // await Check_price_Area_commercial();
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(
-      //     action: SnackBarAction(
-      //         label: "View",
-      //         onPressed: () {
-      //           showDialog(
-      //             context: context,
-      //             builder: (BuildContext context) {
-      //               return AlertDialog(
-      //                 title: const Text('Delial Image'),
-      //                 content: Container(
-      //                   height: 200,
-      //                   decoration: BoxDecoration(
-      //                       image: DecorationImage(
-      //                           image: NetworkImage(
-      //                               'https://maps.googleapis.com/maps/api/staticmap?center=${lati},${longi}&zoom=20&size=500x500&maptype=hybrid&markers=color:red%7Clabel:K%7C${lati},${longi}&key=AIzaSyAJt0Zghbk3qm_ZClIQOYeUT0AaV5TeOsI'))),
-      //                 ),
-      //               );
-      //             },
-      //           );
-      //         }),
-      //     content: Text(' $commune /  $district'),
-      //   ),
-      // );
     } else {
-      // Error or invalid response
       print(response.statusCode);
-    }
-  }
-
-  List name_place = [];
-  Future<void> Find_Lat_log(var place) async {
-    var check_charetor = place.split(',');
-    if (check_charetor.length == 1) {
-      String url =
-          'https://maps.googleapis.com/maps/api/geocode/json?address=${check_charetor[0]}&region=kh&key=AIzaSyAJt0Zghbk3qm_ZClIQOYeUT0AaV5TeOsI';
-      final response = await http.get(Uri.parse(url));
-      final jsonResponse = json.decode(response.body);
-      var location = jsonResponse['results'][0]['geometry']['location'];
-      var lati = location['lat'];
-      var longi = location['lng'];
-      // widget.lat(lati.toString());
-      // widget.log(longi.toString());
-      latLng = LatLng(lati, longi);
-      Marker newMarker = Marker(
-        draggable: true,
-        markerId: MarkerId(latLng.toString()),
-        position: latLng,
-        onDragEnd: (value) {
-          latLng = value;
-          Find_by_piont(value.latitude, value.longitude);
-        },
-        infoWindow: InfoWindow(title: 'KFA\'s Developer'),
-      );
-      setState(() {
-        _marker.clear();
-        Find_by_piont(lati, longi);
-        _marker.add(newMarker);
-      });
-
-      // print('------------------- $latitude');
-      // print('------------------- $longitude');
-
-      mapController?.animateCamera(CameraUpdate.newCameraPosition(
-          CameraPosition(target: latLng, zoom: 13)));
-      List ls = jsonResponse['results'];
-      List ac;
-      for (int j = 0; j < ls.length; j++) {
-        ac = jsonResponse['results'][j]['address_components'];
-        for (int i = 0; i < ac.length; i++) {
-          if (jsonResponse['results'][j]['address_components'][i]['types'][0] ==
-              "administrative_area_level_3") {
-            setState(() {
-              // widget.commune(jsonResponse['results'][j]['address_components'][i]
-              //     ['short_name']);
-              print('Value ');
-            });
-          }
-          if (jsonResponse['results'][j]['address_components'][i]['types'][0] ==
-              "administrative_area_level_2") {
-            setState(() {
-              // widget.district(jsonResponse['results'][j]['address_components']
-              //     [i]['short_name']);
-            });
-          }
-        }
-      }
-    } else {
-      final response = await http.get(Uri.parse(
-          'https://maps.googleapis.com/maps/api/geocode/json?latlng=${check_charetor[0]},${check_charetor[1]}&key=AIzaSyAJt0Zghbk3qm_ZClIQOYeUT0AaV5TeOsI'));
-
-      // Successful response
-      var jsonResponse = json.decode(response.body);
-      var location = jsonResponse['results'][0]['geometry']['location'];
-      var lati = location['lat'];
-      var longi = location['lng'];
-      // widget.lat(lati.toString());
-      // widget.log(longi.toString());
-      latLng = LatLng(lati, longi);
-      Marker newMarker = Marker(
-        draggable: true,
-        markerId: MarkerId(latLng.toString()),
-        position: latLng,
-        onDragEnd: (value) {
-          latLng = value;
-          Find_by_piont(value.latitude, value.longitude);
-        },
-        infoWindow: InfoWindow(title: 'KFA\'s Developer'),
-      );
-      setState(() {
-        _marker.clear();
-        Find_by_piont(lati, longi);
-        _marker.add(newMarker);
-      });
-
-      // print('------------------- $latitude');
-      // print('------------------- $longitude');
-
-      mapController?.animateCamera(CameraUpdate.newCameraPosition(
-          CameraPosition(target: latLng, zoom: 13)));
-      List ls = jsonResponse['results'];
-      List ac;
-      for (int j = 0; j < ls.length; j++) {
-        ac = jsonResponse['results'][j]['address_components'];
-        for (int i = 0; i < ac.length; i++) {
-          if (jsonResponse['results'][j]['address_components'][i]['types'][0] ==
-              "administrative_area_level_3") {
-            setState(() {
-              // widget.commune(jsonResponse['results'][j]['address_components'][i]
-              //     ['short_name']);
-            });
-          }
-          if (jsonResponse['results'][j]['address_components'][i]['types'][0] ==
-              "administrative_area_level_2") {
-            setState(() {
-              // widget.district(jsonResponse['results'][j]['address_components']
-              //     [i]['short_name']);
-            });
-          }
-        }
-      }
-    }
-  }
-
-  // ignore: prefer_typing_uninitialized_variables
-  var commune, district;
-
-  List list = [];
-
-  final Set<Marker> marker = Set(); //163
-  List ln = [];
-  List lg = [];
-  Future<void> get_name_search(var name) async {
-    String url =
-        'https://maps.googleapis.com/maps/api/place/textsearch/json?query=${name}&radius=1000&language=km&region=KH&key=AIzaSyAJt0Zghbk3qm_ZClIQOYeUT0AaV5TeOsI&libraries=places';
-    final response = await http.get(Uri.parse(url));
-    final jsonResponse = json.decode(response.body);
-    List ls = jsonResponse['results'];
-    List ac;
-    for (int j = 0; j < ls.length; j++) {
-      // ac = ls[j]['formatted_address'];
-
-      var name = ls[j]['name'].toString();
-      var data_lnlg = jsonResponse['results'][j]['geometry']['location'];
-      if (h == 0 || h < 250) {
-        h += 40;
-      }
-      lg.add(data_lnlg["lat"]);
-      ln.add(data_lnlg["lng"]);
-      setState(() {
-        name_place.add(name);
-      });
-    }
-  }
-
-  Future<void> poin_map_by_search(var ln, var lg) async {
-    final response = await http.get(Uri.parse(
-        'https://maps.googleapis.com/maps/api/geocode/json?latlng=${lg},${ln}&key=AIzaSyAJt0Zghbk3qm_ZClIQOYeUT0AaV5TeOsI'));
-    var jsonResponse = json.decode(response.body);
-    latLng = LatLng(double.parse(lg), double.parse(ln));
-    Marker newMarker = Marker(
-      draggable: true,
-      markerId: MarkerId(latLng.toString()),
-      position: latLng,
-      onDragEnd: (value) {
-        latLng = value;
-        Find_by_piont(value.latitude, value.longitude);
-      },
-      infoWindow: InfoWindow(title: 'KFA\'s Developer'),
-    );
-    setState(() {
-      _marker.clear();
-      _marker.add(newMarker);
-    });
-    mapController?.animateCamera(CameraUpdate.newCameraPosition(
-        CameraPosition(target: latLng, zoom: 13)));
-    List ls = jsonResponse['results'];
-    List ac;
-    for (int j = 0; j < ls.length; j++) {
-      ac = jsonResponse['results'][j]['address_components'];
-      for (int i = 0; i < ac.length; i++) {
-        if (jsonResponse['results'][j]['address_components'][i]['types'][0] ==
-            "administrative_area_level_3") {
-          setState(() {});
-        }
-        if (jsonResponse['results'][j]['address_components'][i]['types'][0] ==
-            "administrative_area_level_2") {
-          setState(() {});
-        }
-      }
     }
   }
 }

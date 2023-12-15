@@ -125,7 +125,7 @@ class _AddState extends State<New_Veba> with SingleTickerProviderStateMixin {
       verbal_com: '',
       verbal_con: "",
       verbal: [],
-      verbal_id: 0,
+      verbal_id: '0',
       verbal_khan: '',
     );
   }
@@ -144,7 +144,7 @@ class _AddState extends State<New_Veba> with SingleTickerProviderStateMixin {
                 uploadt_image(_file!);
                 uploadt_image_map();
                 requestModelAuto.user = widget.id;
-                requestModelAuto.verbal_id = code;
+                requestModelAuto.verbal_id = code.toString();
                 requestModelAuto.verbal_khan = district.toString();
                 APIservice apIservice = APIservice();
                 apIservice.saveVerbal(requestModelAuto).then(
