@@ -111,7 +111,7 @@ class _EditState extends State<Edit> with SingleTickerProviderStateMixin {
   bool isApiCallProcess = false;
   var opt_type_id = '0';
   List list = [];
-  List<L_B> lb = [L_B('', '', '', '', 0, 0, 0, 0, 0, 0)];
+  List<L_B> lb = [L_B('', '', '', '', '', 0, 0, 0, 0, 0)];
   late List<dynamic> list_Khan;
   var id_khan;
   var district;

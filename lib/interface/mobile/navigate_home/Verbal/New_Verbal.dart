@@ -75,7 +75,7 @@ class _AddState extends State<New_Veba> with SingleTickerProviderStateMixin {
 
   var opt_type_id = '0';
   List list = [];
-  List<L_B> lb = [L_B('', '', '', '', 0, 0, 0, 0, 0, 0)];
+  List<L_B> lb = [L_B('', '', '', '', '', 0, 0, 0, 0, 0)];
   void deleteItemToList(int Id) {
     setState(() {
       lb.removeAt(Id);

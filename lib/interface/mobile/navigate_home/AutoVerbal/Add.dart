@@ -31,8 +31,9 @@ import '../../../../model/land_building.dart';
 import '../../../../model/models/autoVerbal.dart';
 
 class Add extends StatefulWidget {
-  const Add({super.key, required this.id});
+  const Add({super.key, required this.id, required this.id_control_user});
   final String id;
+  final String id_control_user;
   @override
   State<Add> createState() => _AddState();
 }
@@ -74,7 +75,7 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
 
   var opt_type_id = '0';
   List list = [];
-  List<L_B> lb = [L_B('', '', '', '', 0, 0, 0, 0, 0, 0)];
+  List<L_B> lb = [L_B('', '', '', '', '', 0, 0, 0, 0, 0)];
   void deleteItemToList(int Id) {
     setState(() {
       lb.removeAt(Id);
@@ -184,13 +185,25 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
   }
 
   var formatter = NumberFormat("##,###,###,###.00", "en_US");
+  var chars = "abcdefghijklmnopqrstuvwxyz0123456789";
 
+  String RandomString(int strlen) {
+    Random rnd = new Random(new DateTime.now().millisecondsSinceEpoch);
+    String result = "";
+    for (var i = 0; i < strlen; i++) {
+      result += chars[rnd.nextInt(chars.length)];
+    }
+    return result;
+  }
+
+  var verbal_id;
   late AnimationController controller;
   late Animation<double> animation;
   late Animation<Offset> offsetAnimation;
   @override
   void initState() {
     _getCurrentPosition();
+    verbal_id = widget.id_control_user.toString() + RandomString(9);
     controller = AnimationController(
         duration: const Duration(milliseconds: 645), vsync: this);
     animation = new CurvedAnimation(parent: controller, curve: Curves.linear);
@@ -203,18 +216,7 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
       curve: Curves.easeIn,
     ));
     lb;
-    // list.add({
-    //   "verbal_land_type": '',
-    //   "verbal_land_des": '',
-    //   "verbal_land_dp": '',
-    //   "verbal_land_area": 0.00,
-    //   "verbal_land_minsqm": 0.00,
-    //   "verbal_land_maxsqm": 0.00,
-    //   "verbal_land_minvalue": 0.00,
-    //   "verbal_land_maxvalue": 0.00,
-    //   "address": '',
-    //   "verbal_landid": ''
-    // });
+
     super.initState();
 
     requestModelAuto = AutoVerbalRequestModel(
@@ -259,11 +261,12 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
         actions: <Widget>[
           InkWell(
             onTap: () async {
+              print('Verbal ID =========> $verbal_id');
               List<Map<String, dynamic>> jsonList =
                   lb.map((item) => item.toJson()).toList();
               print('$jsonList');
               requestModelAuto.user = widget.id;
-              requestModelAuto.verbal_id = code.toString();
+              requestModelAuto.verbal_id = verbal_id;
               requestModelAuto.verbal_khan = '${commune}.${district}';
               requestModelAuto.verbal = jsonList;
               APIservice apIservice = APIservice();
@@ -283,7 +286,6 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
                     ).show();
                   } else {
                     if (value.message == "Save Successfully") {
-                      print('GO');
                       if (_file != null) {
                         uploadt_image(_file!);
                         print('file != null');
@@ -404,13 +406,23 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
     return Column(
       children: [
         SizedBox(height: 10),
-        Code(
-          code: (value) {
-            setState(() {
-              code = value;
-            });
-          },
-          check_property: 1,
+        Row(
+          children: [
+            SizedBox(width: 40),
+            Icon(
+              Icons.qr_code,
+              color: kImageColor,
+              size: 30,
+            ),
+            SizedBox(width: 10),
+            Text(
+              verbal_id,
+              style: TextStyle(
+                  fontSize: 19,
+                  fontWeight: FontWeight.bold,
+                  color: kPrimaryColor),
+            )
+          ],
         ),
         if (lat != null && lat1 == null)
           InkWell(
@@ -1091,31 +1103,6 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
     }
   }
 
-  // openImage() async {
-  //   try {
-  //     var pickedFile = await imgpicker.pickImage(source: ImageSource.gallery);
-  //     //you can use ImageCourse.camera for Camera capture
-  //     if (pickedFile != null) {
-  //       imagepath = pickedFile.path;
-  //       print(imagepath);
-  //       //output /data/user/0/com.example.testapp/cache/image_picker7973898508152261600.jpg
-  //       File imagefile = File(imagepath); //convert Path to File
-  //       // saveAutoVerbal(imagefile);
-  //       Uint8List imagebytes = await imagefile.readAsBytes(); //convert to bytes
-  //       String base64string =
-  //           base64.encode(imagebytes); //convert bytes to base64 string
-  //       Uint8List decodedbytes = base64.decode(base64string);
-  //       //decode base64 stirng to bytes
-  //       setState(() {
-  //         _file = imagefile;
-  //       });
-  //     } else {
-  //       print("No image is selected.");
-  //     }
-  //   } catch (e) {
-  //     print("error while picking file.");
-  //   }
-  // }
   Future<dynamic> uploadt_image(XFile _image) async {
     var request = await http.MultipartRequest(
         "POST",
@@ -1128,7 +1115,7 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
     };
     request.headers.addAll(headers);
     // request.files.add(picture);
-    request.fields['cid'] = code.toString();
+    request.fields['cid'] = verbal_id.toString();
     request.files.add(
       await http.MultipartFile.fromPath(
         "image",
@@ -1146,7 +1133,7 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
         'POST',
         Uri.parse(
             'https://www.oneclickonedollar.com/laravel_kfa_2023/public/api/set_image_map'));
-    request.fields['cid'] = code.toString();
+    request.fields['cid'] = verbal_id.toString();
     if (lat1 == null) {
       final response1 = await http.get(Uri.parse(
           'https://maps.googleapis.com/maps/api/staticmap?center=${lat},${log}&zoom=20&size=720x720&maptype=hybrid&markers=color:red%7C%7C${lat},${log}&key=AIzaSyAJt0Zghbk3qm_ZClIQOYeUT0AaV5TeOsI'));
@@ -1223,7 +1210,7 @@ class _AddState extends State<Add> with SingleTickerProviderStateMixin {
                       requestModelAuto.verbal = value;
                     });
                   },
-                  landId: code.toString(),
+                  landId: verbal_id.toString(),
                   Avt: (value) {
                     a = value;
                     setState(() {});

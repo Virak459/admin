@@ -99,7 +99,10 @@ class _NoBodyHomeState extends State<NoBodyHome> {
                 }
                 if (i == 4) {
                   Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => MenuAutoVerbal(id: widget.id)));
+                      builder: (context) => MenuAutoVerbal(
+                            id: widget.id,
+                            id_control_user: widget.controller_user!,
+                          )));
                 }
                 if (i == 5) {
                   Navigator.of(context).push(MaterialPageRoute(

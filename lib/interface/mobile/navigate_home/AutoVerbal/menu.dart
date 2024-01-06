@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:kfa_admin/interface/mobile/navigate_home/AutoVerbal/AutoVerbal.dart';
-import 'package:kfa_admin/interface/mobile/navigate_home/AutoVerbal/Setdata.dart';
+import 'package:kfa_admin/interface/mobile/navigate_home/AutoVerbal/Add.dart';
 
 class MenuAutoVerbal extends StatefulWidget {
-  MenuAutoVerbal({Key? key, required this.id}) : super(key: key);
+  MenuAutoVerbal({Key? key, required this.id, required this.id_control_user})
+      : super(key: key);
   final String id;
-
+  final String id_control_user;
   @override
   State<MenuAutoVerbal> createState() => _MenuAutoVerbalState();
 }
@@ -63,6 +64,7 @@ class _MenuAutoVerbalState extends State<MenuAutoVerbal> {
                   if (i == 0) {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => Add(
+                              id_control_user: widget.id_control_user,
                               id: widget.id,
                             )));
                   }

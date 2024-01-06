@@ -10,6 +10,7 @@ import 'package:getwidget/components/button/gf_button.dart';
 import 'package:getwidget/components/shimmer/gf_shimmer.dart';
 import 'package:getwidget/types/gf_button_type.dart';
 import 'package:http/http.dart' as http;
+import 'package:kfa_admin/components/get_image_by_firsbase.dart';
 import 'package:kfa_admin/interface/mobile/navigate_home/property/khae_25/All_khae_cambodia.dart';
 import 'Getx_api/vetbal_controller.dart';
 import 'List_all.dart';
@@ -651,15 +652,23 @@ class _Home_Screen_propertyState extends State<Home_Screen_property> {
                     print('one');
                   });
                 },
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: FadeInImage.assetNetwork(
-                    placeholder: 'assets/earth.gif',
-                    image: imageList[index]['url'].toString(),
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                  ),
+                child: CachedNetworkImage(
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  imageUrl: imageList[index]['url'].toString(),
+                  placeholder: (context, url) =>
+                      Center(child: CircularProgressIndicator()),
+                  errorWidget: (context, url, error) => Icon(Icons.error),
                 ),
+                // child: ClipRRect(
+                //   borderRadius: BorderRadius.circular(10),
+                //   child: FadeInImage.assetNetwork(
+                //     placeholder: 'assets/earth.gif',
+                //     image: imageList[index]['url'].toString(),
+                //     fit: BoxFit.cover,
+                //     width: double.infinity,
+                //   ),
+                // ),
               ),
             );
           },
