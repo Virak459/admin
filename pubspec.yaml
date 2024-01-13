@@ -69,7 +69,7 @@ dependencies:
   flutter_dotenv: ^5.0.2
   sizer: ^2.0.15
   google_fonts: ^4.0.4
-  responsive_sizer: ^3.1.1
+  # responsive_sizer: ^3.1.1
   awesome_dialog: ^3.0.2
   location_geocoder: ^1.0.5
   search_map_location: ^0.0.6
@@ -78,7 +78,7 @@ dependencies:
   pdf: ^3.8.3
   open_file: ^3.2.1
   path_provider: ^2.0.11
-  printing: 5.11.1
+  printing: any
   file_picker: ^4.6.1
   uuid: ^3.0.6
   anim_search_bar: ^2.0.2

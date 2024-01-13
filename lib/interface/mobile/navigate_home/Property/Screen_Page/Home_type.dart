@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:kfa_admin/contants.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:pdf/widgets.dart' as pw;
 import '../Detail_Screen/Detail_all_list_Screen.dart';
 import '../Getx_api/controller_hometype.dart';

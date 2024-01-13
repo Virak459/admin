@@ -503,7 +503,11 @@ class _RegisterState extends State<Register> {
                 height: 10,
               ),
               FormValidate(
-                onSaved: (input) => requestModel.email = input!,
+                onSaved: (newValue) {
+                  setState(() {
+                    requestModel.email = newValue!;
+                  });
+                },
                 label: 'Email',
                 iconname: Icon(
                   Icons.email,
@@ -514,7 +518,11 @@ class _RegisterState extends State<Register> {
                 height: 10,
               ),
               FormValidate(
-                onSaved: (input) => requestModel.tel_num = input!,
+                onSaved: (newValue) {
+                  setState(() {
+                    requestModel.tel_num = newValue!;
+                  });
+                },
                 label: 'Phone Number',
                 iconname: Icon(
                   Icons.phone,
@@ -525,7 +533,11 @@ class _RegisterState extends State<Register> {
                 padding: EdgeInsets.fromLTRB(30, 10, 30, 10),
                 child: TextFormField(
                   obscureText: _isObscure,
-                  onChanged: (input) => requestModel.password = input,
+                  onChanged: (value) {
+                    setState(() {
+                      requestModel.password = value;
+                    });
+                  },
                   decoration: InputDecoration(
                     fillColor: kwhite,
                     filled: true,
@@ -584,8 +596,11 @@ class _RegisterState extends State<Register> {
                 padding: EdgeInsets.fromLTRB(30, 0, 30, 10),
                 child: TextFormField(
                   obscureText: _isObscure,
-                  onChanged: (input) =>
-                      requestModel.password_confirmation = input,
+                  onChanged: (value) {
+                    setState(() {
+                      requestModel.password_confirmation = value;
+                    });
+                  },
                   decoration: InputDecoration(
                     fillColor: kwhite,
                     filled: true,
@@ -726,7 +741,10 @@ class _RegisterState extends State<Register> {
                         isApiCallProcess = true;
                         requestModel.control_user = set_id_user.toString();
                       });
-                      await uploadImage();
+                      if (get_bytes != null || _byesData != null) {
+                        await uploadImage();
+                      }
+
                       APIservice apIservice = APIservice();
 
                       apIservice.register(requestModel).then((value) {
@@ -743,14 +761,30 @@ class _RegisterState extends State<Register> {
                             title: value.message,
                             autoHide: Duration(seconds: 3),
                             onDismissCallback: (type) {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Login(),
-                                ),
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text("New User Added")),
                               );
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => Login(),
+                                  ));
                             },
                           ).show();
+                        } else if (value.message ==
+                            "User unsuccessfully registered") {
+                          AwesomeDialog(
+                            context: context,
+                            dialogType: DialogType.error,
+                            animType: AnimType.rightSlide,
+                            headerAnimationLoop: false,
+                            title: 'Error',
+                            desc: "This Email is already registered",
+                            btnOkOnPress: () {},
+                            btnOkIcon: Icons.cancel,
+                            btnOkColor: Colors.red,
+                          ).show();
+                          // print(value.message);
                         } else {
                           AwesomeDialog(
                             context: context,
