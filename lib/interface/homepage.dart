@@ -222,21 +222,22 @@ class _HomePageState extends State<HomePage>
           ),
           elevation: 0,
           centerTitle: true,
-          leading: IconButton(
-            onPressed: _handleMenuButtonPressed,
-            icon: ValueListenableBuilder<AdvancedDrawerValue>(
-              valueListenable: _advancedDrawerController,
-              builder: (_, value, __) {
-                return AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 250),
-                  child: Icon(
-                    value.visible ? Icons.clear : Icons.menu,
-                    key: ValueKey<bool>(value.visible),
-                  ),
-                );
-              },
-            ),
-          ),
+          //បិទDrawer
+          // leading: IconButton(
+          //   onPressed: _handleMenuButtonPressed,
+          //   icon: ValueListenableBuilder<AdvancedDrawerValue>(
+          //     valueListenable: _advancedDrawerController,
+          //     builder: (_, value, __) {
+          //       return AnimatedSwitcher(
+          //         duration: const Duration(milliseconds: 250),
+          //         child: Icon(
+          //           value.visible ? Icons.clear : Icons.menu,
+          //           key: ValueKey<bool>(value.visible),
+          //         ),
+          //       );
+          //     },
+          //   ),
+          // ),
           title: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -342,7 +343,7 @@ class _HomePageState extends State<HomePage>
   void _handleMenuButtonPressed() {
     // NOTICE: Manage Advanced Drawer state through the Controller.
     // _advancedDrawerController.value = AdvancedDrawerValue.visible();
-    _advancedDrawerController.showDrawer();
+    //_advancedDrawerController.showDrawer();
   }
 
   Container buildMyNavBar(BuildContext context) {

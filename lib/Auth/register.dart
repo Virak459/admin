@@ -379,35 +379,29 @@ class _RegisterState extends State<Register> {
               ),
               if (user_last_id != null)
                 SizedBox(
-                  height: 55,
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
-                    child: TextFormField(
-                      readOnly: true,
-                      initialValue: 'Identity ${set_id_user}',
-                      style: TextStyle(
-                          fontWeight: FontWeight.w600, color: Colors.grey),
-                      decoration: InputDecoration(
-                        fillColor: kwhite,
-                        filled: true,
-                        prefixIcon: Icon(
-                          Icons.info_outline_rounded,
-                          color: kImageColor,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                              color: kPrimaryColor, width: 2.0),
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            width: 1,
-                            color: kPrimaryColor,
-                          ),
-                          borderRadius: BorderRadius.circular(10.0),
+                  height: 58,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'This\'s your personal id:',
+                        //initialValue: '${set_id_user}',
+                        style: TextStyle(
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.bold,
+                          color: kPrimaryColor,
                         ),
                       ),
-                    ),
+                      Text(
+                        '$set_id_user',
+                        //initialValue: '${set_id_user}',
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                          color: kPrimaryColor,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               SizedBox(

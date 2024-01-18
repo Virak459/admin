@@ -48,21 +48,21 @@ class On_property extends StatefulWidget {
 
 class _On_propertyState extends State<On_property> {
   List<Text> option = const [
-    Text("Biulding Type",
-        style: TextStyle(
-            fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
-    Text("Register",
-        style: TextStyle(
-            fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
+    // Text("Biulding Type",
+    //     style: TextStyle(
+    //         fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
+    // Text("Register",
+    //     style: TextStyle(
+    //         fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
     Text("Auto",
         style: TextStyle(
             fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
-    Text("Road",
-        style: TextStyle(
-            fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
-    Text("Approved",
-        style: TextStyle(
-            fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
+    // Text("Road",
+    //     style: TextStyle(
+    //         fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
+    // Text("Approved",
+    //     style: TextStyle(
+    //         fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
     Text("Bank",
         style: TextStyle(
             fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
@@ -72,12 +72,12 @@ class _On_propertyState extends State<On_property> {
     Text("Agency",
         style: TextStyle(
             fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
-    Text("Option",
-        style: TextStyle(
-            fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
-    Text("Land",
-        style: TextStyle(
-            fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
+    // Text("Option",
+    //     style: TextStyle(
+    //         fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
+    // Text("Land",
+    //     style: TextStyle(
+    //         fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
     Text("Assign To",
         style: TextStyle(
             fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
@@ -99,22 +99,22 @@ class _On_propertyState extends State<On_property> {
     Text("Appraiser Name",
         style: TextStyle(
             fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
-    Text("Min & Max",
-        style: TextStyle(
-            fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
-    Text("Province",
-        style: TextStyle(
-            fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
-    Text("District",
-        style: TextStyle(
-            fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
-    Text("Commune",
-        style: TextStyle(
-            fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
+    // Text("Min & Max",
+    //     style: TextStyle(
+    //         fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
+    // Text("Province",
+    //     style: TextStyle(
+    //         fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
+    // Text("District",
+    //     style: TextStyle(
+    //         fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
+    // Text("Commune",
+    //     style: TextStyle(
+    //         fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
   ];
   List<Icon> optionIconList = [
-    Icon(Icons.cabin, color: Colors.white),
-    Icon(Icons.how_to_reg, color: Colors.white),
+    // Icon(Icons.cabin, color: Colors.white),
+    // Icon(Icons.how_to_reg, color: Colors.white),
     Icon(Icons.auto_fix_high, color: Colors.white),
     Icon(Icons.edit_road, color: Colors.white),
     Icon(Icons.checklist_rtl, color: Colors.white),
@@ -127,15 +127,15 @@ class _On_propertyState extends State<On_property> {
     Icon(Icons.insert_page_break, color: Colors.white),
     Icon(Icons.app_registration_rounded, color: Colors.white),
     Icon(Icons.add_comment_sharp, color: Colors.white),
-    Icon(Icons.add_comment_sharp, color: Colors.white),
-    Icon(Icons.add_comment_sharp, color: Colors.white),
+    // Icon(Icons.add_comment_sharp, color: Colors.white),
+    // Icon(Icons.add_comment_sharp, color: Colors.white),
 
     ///
-    Icon(Icons.assignment_ind, color: Colors.white),
-    Icon(Icons.hourglass_empty, color: Colors.white),
-    Icon(Icons.category, color: Colors.white),
-    Icon(Icons.dashboard, color: Colors.white),
-    Icon(Icons.calendar_view_month, color: Colors.white),
+    // Icon(Icons.assignment_ind, color: Colors.white),
+    // Icon(Icons.hourglass_empty, color: Colors.white),
+    // Icon(Icons.category, color: Colors.white),
+    // Icon(Icons.dashboard, color: Colors.white),
+    // Icon(Icons.calendar_view_month, color: Colors.white),
   ];
   @override
   Widget build(BuildContext context) {
@@ -147,47 +147,47 @@ class _On_propertyState extends State<On_property> {
               hoverColor: Color.fromARGB(161, 255, 249, 87),
               onTap: () {
                 setState(() {
-                  if (i == 2) {
+                  if (i == 0) {
                     Navigator.of(context).push(
                         MaterialPageRoute(builder: (context) => MenuAuto()));
                   }
-                  if (i == 5) {
+                  if (i == 1) {
                     Navigator.of(context).push(
                         MaterialPageRoute(builder: (context) => Menu_bank()));
                   }
-                  if (i == 6) {
+                  if (i == 2) {
                     Navigator.of(context).push(
                         MaterialPageRoute(builder: (context) => Menu_brand()));
                   }
-                  if (i == 7) {
+                  if (i == 3) {
                     Navigator.of(context).push(
                         MaterialPageRoute(builder: (context) => Menu_Agency()));
                   }
-                  if (i == 10) {
+                  if (i == 4) {
                     Navigator.of(context).push(
                         MaterialPageRoute(builder: (context) => Menu_Assign()));
                   }
-                  if (i == 11) {
+                  if (i == 5) {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => Menu_Inspector()));
                   }
-                  if (i == 12) {
+                  if (i == 6) {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => Menu_Inspectors()));
                   }
-                  if (i == 13) {
+                  if (i == 7) {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => Menu_Register()));
                   }
-                  if (i == 14) {
+                  if (i == 8) {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => Menu_Acompany()));
                   }
-                  if (i == 15) {
+                  if (i == 9) {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => Menu_Approved()));
                   }
-                  if (i == 16) {
+                  if (i == 10) {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => Menu_Appraiser()));
                   }

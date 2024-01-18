@@ -632,7 +632,7 @@ class _New_ComparableState extends State<New_Comparable> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Container(
-                    width: MediaQuery.of(context).size.height * 0.2,
+                    width: MediaQuery.of(context).size.height * 0.20,
                     padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                     child: DropdownButtonFormField<String>(
                       isExpanded: true,
@@ -714,7 +714,7 @@ class _New_ComparableState extends State<New_Comparable> {
                     ),
                   ),
                   Container(
-                    width: MediaQuery.of(context).size.height * 0.2,
+                    width: MediaQuery.of(context).size.height * 0.19,
                     child: TextFormField(
                       keyboardType: TextInputType.number,
                       style: TextStyle(

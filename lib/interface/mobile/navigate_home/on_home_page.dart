@@ -49,12 +49,12 @@ class _NoBodyHomeState extends State<NoBodyHome> {
     Text("Verbal",
         style: TextStyle(
             fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
-    Text("User",
-        style: TextStyle(
-            fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
-    Text("Report",
-        style: TextStyle(
-            fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
+    // Text("User",
+    //     style: TextStyle(
+    //         fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
+    // Text("Report",
+    //     style: TextStyle(
+    //         fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
   ];
   List<Icon> optionIconList = const [
     Icon(Icons.group_rounded, color: Colors.white),
@@ -63,15 +63,15 @@ class _NoBodyHomeState extends State<NoBodyHome> {
     Icon(Icons.view_cozy_rounded, color: Colors.white),
     Icon(Icons.preview_rounded, color: Colors.white),
     Icon(Icons.visibility_rounded, color: Colors.white),
-    Icon(Icons.person_pin_outlined, color: Colors.white),
-    Icon(Icons.report_rounded, color: Colors.white),
+    // Icon(Icons.person_pin_outlined, color: Colors.white),
+    // Icon(Icons.report_rounded, color: Colors.white),
   ];
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
         children: [
-          for (int i = 0; i < 8; i++)
+          for (int i = 0; i < 6; i++)
             InkWell(
               hoverColor: Color.fromARGB(161, 255, 249, 87),
               onTap: () {
@@ -110,19 +110,19 @@ class _NoBodyHomeState extends State<NoBodyHome> {
                             id: widget.id,
                           )));
                 }
-                if (i == 6) {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => MenuUser(
-                            controller_user: widget.controller_user,
-                            id: widget.id,
-                          )));
-                }
-                if (i == 7) {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => MenuReport(
-                            id: "17",
-                          )));
-                }
+                // if (i == 6) {
+                //   Navigator.of(context).push(MaterialPageRoute(
+                //       builder: (context) => MenuUser(
+                //             controller_user: widget.controller_user,
+                //             id: widget.id,
+                //           )));
+                // }
+                // if (i == 7) {
+                //   Navigator.of(context).push(MaterialPageRoute(
+                //       builder: (context) => MenuReport(
+                //             id: "17",
+                //           )));
+                // }
               },
               child: Container(
                 width: MediaQuery.of(context).size.width,

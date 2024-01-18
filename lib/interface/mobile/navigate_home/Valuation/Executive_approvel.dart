@@ -468,7 +468,7 @@ class _ComparableListState extends State<Executive_approvals> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.deepPurple[900],
-        title: Text('$date'),
+        title: Text('Executive Approvals'),
         centerTitle: true,
       ),
       body: comparable_list(context),

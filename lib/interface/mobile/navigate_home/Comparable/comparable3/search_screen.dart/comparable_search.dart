@@ -677,7 +677,7 @@ class _comparable_searchState extends State<comparable_search> {
                     width: 10,
                   ),
                   Container(
-                    width: MediaQuery.of(context).size.width * 0.4,
+                    width: MediaQuery.of(context).size.width * 0.37,
                     child: TextFormField(
                       keyboardType: TextInputType.number,
                       style: TextStyle(
