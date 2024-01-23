@@ -220,6 +220,28 @@ class _AccountState extends State<Account> {
     }
   }
 
+  Future<void> deleteData(String controll_id) async {
+    setState(() {
+      print("koko $set_id_user");
+    });
+    final response = await http.post(
+      Uri.parse(
+          'https://www.oneclickonedollar.com/laravel_kfa_2023/public/api/user/$set_id_user'),
+      // headers: {
+      //   "Accept": "application/json;charset=UTF-8",
+      //   "Content-Type": "application/json"
+      // },
+      //body: jsonEncode(controll_id),
+    );
+    if (response.statusCode == 200 || response.statusCode == 422) {
+      print('Data deleted successfully');
+    } else if (response.statusCode == 201 || response.statusCode == 401) {
+      print('Data deleted successfully');
+    } else {
+      throw Exception('Failed to load Data');
+    }
+  }
+
   static List<PeopleModel> list = [];
   RegisterRequestModel_update? requestModel;
   late TextEditingController Password;
@@ -542,6 +564,18 @@ class _AccountState extends State<Account> {
                               )
                             ],
                           ),
+                          ElevatedButton(
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.red),
+                              ),
+                              child: Text('Delete'),
+                              onPressed: (() async {
+                                print('delete');
+                                await deleteData(set_id_user);
+                                logOut();
+                              }))
                         ],
                       ),
 
