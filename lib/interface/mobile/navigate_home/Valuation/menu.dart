@@ -16,8 +16,8 @@ class MenuValuation extends StatefulWidget {
 
 class _MenuValuationState extends State<MenuValuation> {
   List<Text> option = const [
-    Text("New Executive",
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+    // Text("New Executive",
+    //     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
     Text("Executive List",
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
     Text("Executive Approvals",
@@ -55,21 +55,21 @@ class _MenuValuationState extends State<MenuValuation> {
             for (int i = 0; i < option.length; i++)
               InkWell(
                 onTap: () {
+                  // if (i == 0) {
+                  //   Navigator.push(context, MaterialPageRoute(
+                  //     builder: (context) {
+                  //       return New_Executive();
+                  //     },
+                  //   ));
+                  // }
                   if (i == 0) {
-                    Navigator.push(context, MaterialPageRoute(
-                      builder: (context) {
-                        return New_Executive();
-                      },
-                    ));
-                  }
-                  if (i == 1) {
                     Navigator.push(context, MaterialPageRoute(
                       builder: (context) {
                         return Executive_List();
                       },
                     ));
                   }
-                  if (i == 2) {
+                  if (i == 1) {
                     Navigator.push(context, MaterialPageRoute(
                       builder: (context) {
                         return Executive_approvals();

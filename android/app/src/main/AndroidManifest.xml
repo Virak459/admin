@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.oneclickonedollar.kfa_admin"
+    package="com.oneclickonedollar.admin"
     xmlns:tools="http://schemas.android.com/tools">
     >
      <uses-permission

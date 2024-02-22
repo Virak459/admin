@@ -21,8 +21,6 @@ import '../../../../components/contants.dart';
 import '../../../../model/executive/buiding_executive.dart';
 import '../../../../model/executive/executive.dart';
 import '../../../../server/api_service.dart';
-
-import 'LandBuilding.dart';
 import 'google_map/google_map.dart';
 import 'land_building/LandBuilding.dart';
 import 'land_building/landbuilding_appraiser.dart';
@@ -254,205 +252,189 @@ class _New_ExecutiveState extends State<New_Executive>
             )
           ],
         ),
-        body: NestedScrollView(
-          headerSliverBuilder: (context, innerBoxIsScrolled) {
-            return [
-              SliverToBoxAdapter(
-                  child: Column(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        body: SingleChildScrollView(
+            //headerSliverBuilder: (context, innerBoxIsScrolled) {
+            //return [
+            child: Column(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: pading_r_l_t,
+                  child: Row(
                     children: [
-                      Padding(
-                        padding: pading_r_l_t,
-                        child: Row(
-                          children: [
-                            _dropdown(
-                                '',
-                                customer_name,
-                                'Customer *',
-                                'customer_id',
-                                'customerengname',
-                                _customer_name),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: pading_r_l_t,
-                        child: Row(
-                          children: [
-                            _date(Valuation, 'Valuation Date*',
-                                'Valuation Date*'),
-                            _Sizebox_w,
-                            _date(Issue, 'Issue Date*', ''),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: pading_r_l_t,
-                        child: Row(
-                          children: [
-                            _TextFiled_Input('no_number', 'Purpose', 'null'),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: pading_r_l_t,
-                        child: Row(
-                          children: [
-                            _dropdown(
-                                '',
-                                _list_type,
-                                'Property Type *',
-                                'property_type_id',
-                                'property_type_name',
-                                _property),
-                            _Sizebox_w,
-                            _dropdown('Zoning', _list_zoning, 'Zoning',
-                                'zoning_id', 'zoning_name', _zoning),
-                          ],
-                        ),
-                      ),
-                      _Text('Land Size', pading_r_l_t_b),
-                      Land_building(
-                        l_get: 'new_executive_no',
-                        l: (value) {
-                          setState(() {
-                            requestModelbuildng.executive_land_lengh = value;
-                          });
-                        },
-                        total: (value) {
-                          setState(() {
-                            requestModelbuildng.executive_land_total = value;
-                          });
-                        },
-                        w: (value) {
-                          setState(() {
-                            requestModelbuildng.executive_land_width = value;
-                          });
-                        },
-                      ),
-                      Padding(
-                        padding: pading_r_l_t,
-                        child: Row(
-                          children: [
-                            _TextFiled_Input('number', 'Land Price', 'null'),
-                            _Sizebox_w,
-                            _TextFiled_Input('number', 'Total', 'null'),
-                          ],
-                        ),
-                      ),
-
-                      _Text('Market Price (Per sqr)', pading_r_l_t_b),
-                      Padding(
-                        padding: pading_r_l_t,
-                        child: Row(
-                          children: [
-                            _TextFiled_Input('number', 'Min Price', 'null'),
-                            _Sizebox_w,
-                            _TextFiled_Input('number', 'Max Price', 'null'),
-                          ],
-                        ),
-                      ),
-                      build_add(),
-                      (requestModelbuildng.building.length != 0)
-                          ? list_view(requestModelbuildng.building, '1')
-                          : SizedBox(),
-                      Appraiser_add(),
-                      (requestModelbuildng.appriaser.length != 0)
-                          ? list_view(requestModelbuildng.appriaser, '2')
-                          : SizedBox(),
-                      Padding(
-                        padding: pading_r_l_t,
-                        child: Row(
-                          children: [
-                            _TextFiled_Input('no_number', 'Property Name', ''),
-                            _Sizebox_w,
-                            _TextFiled_Input(
-                                'no_number', 'Obligation Concern', ''),
-                          ],
-                        ),
-                      ),
-                      //////sssssssssssss
-                      Padding(
-                        padding: pading_r_l_t,
-                        child: Row(
-                          children: [
-                            _TextFiled_Input(
-                                'number', 'Gross Floor Area (GFA)', ''),
-                            _Sizebox_w,
-                            _TextFiled_Input('number', 'Fair Market Value', ''),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: pading_r_l_t,
-                        child: Row(
-                          children: [
-                            _TextFiled_Input(
-                                'no_number', 'Forced Sale Value', ''),
-                            _Sizebox_w,
-                            _TextFiled_Input(
-                                'no_number', 'Fire Insurance Value', ''),
-                          ],
-                        ),
-                      ),
-                      skc(
-                          'address : ${(address == 'null') ? '' : address}',
-                          'Province : ${(province_name == 'null') ? '' : province_name}',
-                          'District : ${(district_name == 'null') ? '' : district_name}',
-                          'Cummune : ${(cummune_name == 'null') ? '' : cummune_name}'),
-                      dropdown_(raod_name),
-                      Remark(),
-                      (_images.length != 0) ? mutiple_pic() : SizedBox(),
-                      Mutiple_image_button(),
-                      Padding(
-                        padding: pading_r_l_t,
-                        child: Row(
-                          children: [
-                            _TextFiled_Input('no_number', 'Latitude *', ''),
-                            _Sizebox_w,
-                            _TextFiled_Input('no_number', 'Longitude *', ''),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: pading_r_l_t,
-                        child: Row(
-                          children: [
-                            _date_day('From Date*', '', fromdate),
-                            _Sizebox_w,
-                            _date_day('To Date*', '', todate)
-                          ],
-                        ),
-                      ),
-                      google_map(),
-                      // data_table(context),
-                      // _switch(),
-                      // Text(list_comeback.toString())
-                      Text(list_comeback_bool.toString())
+                      _dropdown('', customer_name, 'Customer *', 'customer_id',
+                          'customerengname', _customer_name),
                     ],
                   ),
-                ],
-              )),
-            ];
-          },
-          body: ScrollerViewContainer_(),
-          // body: ScrollerViewContainer(
-          //   List_map_back_bool: (value) {
-          //     setState(() {
-          //       list_comeback_bool = value;
-          //     });
-          //   },
-          //   List_map_back: (value) {
-          //     setState(() {
-          //       list_comeback = value;
-          //     });
-          //   },
-          //   conparable_map: requestModelbuildng.conparable_map,
-          //   list_map: list_comparble,
-          // ),
-        ));
+                ),
+                Padding(
+                  padding: pading_r_l_t,
+                  child: Row(
+                    children: [
+                      _date(Valuation, 'Valuation Date*', 'Valuation Date*'),
+                      _Sizebox_w,
+                      _date(Issue, 'Issue Date*', ''),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: pading_r_l_t,
+                  child: Row(
+                    children: [
+                      _TextFiled_Input('no_number', 'Purpose', 'null'),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: pading_r_l_t,
+                  child: Row(
+                    children: [
+                      _dropdown('', _list_type, 'Property Type *',
+                          'property_type_id', 'property_type_name', _property),
+                      _Sizebox_w,
+                      _dropdown('Zoning', _list_zoning, 'Zoning', 'zoning_id',
+                          'zoning_name', _zoning),
+                    ],
+                  ),
+                ),
+                _Text('Land Size', pading_r_l_t_b),
+                Land_building(
+                  l_get: 'new_executive_no',
+                  l: (value) {
+                    setState(() {
+                      requestModelbuildng.executive_land_lengh = value;
+                    });
+                  },
+                  total: (value) {
+                    setState(() {
+                      requestModelbuildng.executive_land_total = value;
+                    });
+                  },
+                  w: (value) {
+                    setState(() {
+                      requestModelbuildng.executive_land_width = value;
+                    });
+                  },
+                ),
+                Padding(
+                  padding: pading_r_l_t,
+                  child: Row(
+                    children: [
+                      _TextFiled_Input('number', 'Land Price', 'null'),
+                      _Sizebox_w,
+                      _TextFiled_Input('number', 'Total', 'null'),
+                    ],
+                  ),
+                ),
+
+                _Text('Market Price (Per sqr)', pading_r_l_t_b),
+                Padding(
+                  padding: pading_r_l_t,
+                  child: Row(
+                    children: [
+                      _TextFiled_Input('number', 'Min Price', 'null'),
+                      _Sizebox_w,
+                      _TextFiled_Input('number', 'Max Price', 'null'),
+                    ],
+                  ),
+                ),
+                build_add(),
+                (requestModelbuildng.building.length != 0)
+                    ? list_view(requestModelbuildng.building, '1')
+                    : SizedBox(),
+                Appraiser_add(),
+                (requestModelbuildng.appriaser.length != 0)
+                    ? list_view(requestModelbuildng.appriaser, '2')
+                    : SizedBox(),
+                Padding(
+                  padding: pading_r_l_t,
+                  child: Row(
+                    children: [
+                      _TextFiled_Input('no_number', 'Property Name', ''),
+                      _Sizebox_w,
+                      _TextFiled_Input('no_number', 'Obligation Concern', ''),
+                    ],
+                  ),
+                ),
+                //////sssssssssssss
+                Padding(
+                  padding: pading_r_l_t,
+                  child: Row(
+                    children: [
+                      _TextFiled_Input('number', 'Gross Floor Area (GFA)', ''),
+                      _Sizebox_w,
+                      _TextFiled_Input('number', 'Fair Market Value', ''),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: pading_r_l_t,
+                  child: Row(
+                    children: [
+                      _TextFiled_Input('no_number', 'Forced Sale Value', ''),
+                      _Sizebox_w,
+                      _TextFiled_Input('no_number', 'Fire Insurance Value', ''),
+                    ],
+                  ),
+                ),
+                skc(
+                    'address : ${(address == 'null') ? '' : address}',
+                    'Province : ${(province_name == 'null') ? '' : province_name}',
+                    'District : ${(district_name == 'null') ? '' : district_name}',
+                    'Cummune : ${(cummune_name == 'null') ? '' : cummune_name}'),
+                dropdown_(raod_name),
+                Remark(),
+                (_images.length != 0) ? mutiple_pic() : SizedBox(),
+                Mutiple_image_button(),
+                Padding(
+                  padding: pading_r_l_t,
+                  child: Row(
+                    children: [
+                      _TextFiled_Input('no_number', 'Latitude *', ''),
+                      _Sizebox_w,
+                      _TextFiled_Input('no_number', 'Longitude *', ''),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: pading_r_l_t,
+                  child: Row(
+                    children: [
+                      _date_day('From Date*', '', fromdate),
+                      _Sizebox_w,
+                      _date_day('To Date*', '', todate)
+                    ],
+                  ),
+                ),
+                google_map(),
+                // data_table(context),
+                // _switch(),
+                // Text(list_comeback.toString())
+                //Text(list_comeback_bool.toString())
+              ],
+            ),
+          ],
+        )
+            //];
+            //}
+            //body: ScrollerViewContainer_(),
+            // body: ScrollerViewContainer(
+            //   List_map_back_bool: (value) {
+            //     setState(() {
+            //       list_comeback_bool = value;
+            //     });
+            //   },
+            //   List_map_back: (value) {
+            //     setState(() {
+            //       list_comeback = value;
+            //     });
+            //   },
+            //   conparable_map: requestModelbuildng.conparable_map,
+            //   list_map: list_comparble,
+            // ),
+            ));
   }
 
   Widget ScrollerViewContainer_() {
@@ -1073,7 +1055,7 @@ class _New_ExecutiveState extends State<New_Executive>
         maxImages: 4,
         enableCamera: true,
       );
-    } on Exception catch (e) {
+    } on Exception {
       // Handle exception
     }
     // setState(() {

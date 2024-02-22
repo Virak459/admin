@@ -93,9 +93,9 @@ class _On_propertyState extends State<On_property> {
     Text("Accomnpany Name",
         style: TextStyle(
             fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
-    Text("Approved Name",
-        style: TextStyle(
-            fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
+    // Text("Approved Name",
+    //     style: TextStyle(
+    //         fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
     Text("Appraiser Name",
         style: TextStyle(
             fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
@@ -125,7 +125,7 @@ class _On_propertyState extends State<On_property> {
     //Inspector
     Icon(Icons.insert_page_break, color: Colors.white),
     Icon(Icons.insert_page_break, color: Colors.white),
-    Icon(Icons.app_registration_rounded, color: Colors.white),
+    //Icon(Icons.app_registration_rounded, color: Colors.white),
     Icon(Icons.add_comment_sharp, color: Colors.white),
     // Icon(Icons.add_comment_sharp, color: Colors.white),
     // Icon(Icons.add_comment_sharp, color: Colors.white),
